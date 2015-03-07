@@ -23,6 +23,9 @@ from linkfix import linkfix
 from BeautifulSoup import BeautifulSoup
 from time import time, sleep
 
+# Don't reply to these authors
+author_blacklist = ('JiffierBot', 'gfy_mirror')
+
 class multithread(object):
 
 	def __init__(self):
@@ -82,7 +85,7 @@ class multithread(object):
 
 					if (	"giant.gfycat.com" in comment.body
 						and not check(comment.id)
-						and not str(comment.author) == 'JiffierBot'
+						and not str(comment.author) in author_blacklist
 						):
 						reply = l.gfycat(comment.body)
 						if reply:
