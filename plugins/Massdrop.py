@@ -20,7 +20,7 @@ class Massdrop(Base):
         self.USERNAME = self.config.get(self.BOT_NAME, 'username')
         self.OAUTH_FILENAME = self.config.get(self.BOT_NAME, 'oauth')
         self.REGEX = re.compile(r"(?P<url>https?:\/\/(?:www\.)?massdrop\.com\/buy\/[^\s;,.\])]*)", re.UNICODE)
-        self.factory_reddit(config_file=resource_filename("config", self.OAUTH_FILENAME))
+        self.factory_reddit(config_path=resource_filename("config", self.OAUTH_FILENAME))
         self.responses = MassdropText("bot_config.ini")
 
         self.RE_DATASET = re.compile('"DropsStore":({.*?}),"StatsStore"', re.UNICODE)
@@ -106,7 +106,6 @@ class Massdrop(Base):
                 continue
             if not from_update:
                 fix_url = fix_url + ('?', '&')['?' in url] + 'mode=guest_open'
-                self.logger.debug('Trying to open {} .'.format(fix_url))
             try:
                 content = urlopen(fix_url).read().decode('utf-8')
                 drop_data = self.RE_DATASET.search(content).groups()[0]

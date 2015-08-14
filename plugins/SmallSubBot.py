@@ -16,7 +16,7 @@ class SmallSubBot(Base):
         self.OAUTH_FILENAME = self.config.get(self.BOT_NAME, 'oauth')
         self.REGEX = re.compile(r"\s/?[rR]/([A-Za-z0-9_]*)[^\s\].,)]*")
         self.DESCRIPTION_REGEX = re.compile(r"(\[).*?(\]\(.*?\))|(\\n)|(#)")  # Helps escaping shitty reddit markdown
-        self.factory_reddit(config_file=resource_filename("config", self.OAUTH_FILENAME))
+        self.factory_reddit(config_path=resource_filename("config", self.OAUTH_FILENAME))
         self.responses = SmallSubText("bot_config.ini")
         self.banwords = ['x-post', 'xpost', 'crosspost', 'cross post', 'x/post',
                          'x\\post', 'via', 'from', 'hhh', 'trending subreddits']
