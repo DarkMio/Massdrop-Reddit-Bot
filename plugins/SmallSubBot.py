@@ -7,8 +7,8 @@ import re
 
 class SmallSubBot(Base):
 
-    def __init__(self):
-        super().__init__(None)
+    def __init__(self, database):
+        super().__init__(database)
         super().factory_config()
         self.BOT_NAME = 'SmallSubBot'
         self.DESCRIPTION = self.config.get(self.BOT_NAME, 'description')
@@ -131,7 +131,7 @@ class SmallSubText:
 
 def init(database):
     """Init Call from module importer to return only the object itself, rather than the module."""
-    return SmallSubBot()
+    return SmallSubBot(database)
 
 
 if __name__ == "__main__":

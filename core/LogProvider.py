@@ -12,7 +12,7 @@ TIME_FORMAT = '%H:%M:%S'
 
 
 class SingleLevelFilter(logging.Filter):
-
+    """Filters a certain logging-level out - used to split error messages to stderr instead of writing into stdout."""
     def __init__(self, passlevel, reject):
         self.passlevel = passlevel
         self.reject = reject
@@ -84,7 +84,7 @@ def setup_logging(log_level="INFO", console_log_level=None):
 
 def local_time_offset():
     """Returns UTC offset and name of time zone at current time
-        Based on http://stackoverflow.com/a/13406277"""
+       Based on http://stackoverflow.com/a/13406277"""
     t = time.time()
 
     if time.localtime(t).tm_isdst and time.daylight:

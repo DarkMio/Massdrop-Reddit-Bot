@@ -25,7 +25,12 @@ class MultiThreader(object):
             while t.isAlive():
                 t.join(5)
 
-    def get_lock(self):
+    @staticmethod
+    def get_lock():
+        """Returns a threading RLock object
+
+        :return: threading.RLock()
+        """
         return threading.RLock()
 
     @staticmethod

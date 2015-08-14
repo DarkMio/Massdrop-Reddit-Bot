@@ -26,32 +26,55 @@ class Base(metaclass=ABCMeta):
         self.RE_BANMSG = re.compile(r'ban /([r|u])/([\d\w_]*)', re.UNICODE)
 
     def integrity_check(self):
+        """Checks if the most important variables are initialized properly.
+
+        :return: True if possible
+        :rtype: bool
+        """
         assert self.USERNAME and self.OAUTH_FILENAME and self.DESCRIPTION, \
             "Failed constant variable integrity check. Check your object and its initialization."
         return True
 
     def factory_logger(self):
+        """Sets up a logger for the plugin."""
         self.logger = logging.getLogger("plugin")
 
-    def factory_reddit(self, config_file):
+    def factory_reddit(self, config_path):
+        """Sets up a complete OAuth Reddit session
+
+        :param config_path: full / relative path to config file
+        :type config_path: str
+        """
         multiprocess = handlers.MultiprocessHandler()
         self.session = praw.Reddit(user_agent=self.DESCRIPTION, handler=multiprocess)
-        self.oauth = OAuth2Util(self.session, configfile=config_file)
+        self.oauth = OAuth2Util(self.session, configfile=config_path)
 
     def factory_config(self):
+        """Sets up a standard config-parser to bot_config.ini. Does not have to be used, but it is handy."""
         self.config = ConfigParser()
         self.config.read(resource_filename('config', 'bot_config.ini'))
 
     def get_unread_messages(self):
+        """Runs down all unread messages of a Reddit session."""
         if hasattr(self, "session"):
             self.oauth.refresh()
             msgs = self.session.get_unread()
             for msg in msgs:
                 msg.mark_as_read()
                 self.on_new_message(msg)
-        return
 
     def standard_ban_procedure(self, message, subreddit_banning_allowed=True, user_banning_allowed=True):
+        """An exemplary method that bans users and subs and then replies them that the bot has banned.
+           Needs a reddit session, oauth and a database pointer to function properly.
+
+        :param message: a single praw message object
+        :type message: praw.objects.Message
+        :param subreddit_banning_allowed: can block out the banning of subreddits
+        :type subreddit_banning_allowed: bool
+        :param user_banning_allowed: can block out the banning of users
+        :type user_banning_allowed: bool
+        :return:
+        """
         if message.author:
             author, human = message.author.name.lower(), True
         else:

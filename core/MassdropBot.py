@@ -155,6 +155,8 @@ class MassdropBot:
                 self.lock.release()
 
     def comment_thread(self):
+        """The comment thread runs down all comments from the specified sub (usually /r/all)
+           then filters out banned users and subreddits and fires it at your plugins."""
         self.logger.info("Opened comment stream successfully.")
         for comment in self.comments:
             for responder in self.responders:
@@ -192,6 +194,9 @@ class MassdropBot:
                 self.lock.release()
 
     def update_thread(self):
+        """The update-thread does a lot of different tasks.
+           First it loads all threads that have to update and executes the update_procedure of your plugin.
+           Then it loads all unread messages of your plugin, cleans up the database and sleeps for 5 minutes."""
         while True:
             self.lock.acquire(True)
             for responder in self.responders:
