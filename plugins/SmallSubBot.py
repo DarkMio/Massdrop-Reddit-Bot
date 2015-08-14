@@ -1,5 +1,5 @@
 from core.BaseClass import Base
-from os.path import dirname
+from pkg_resources import resource_filename
 from configparser import ConfigParser
 from praw.errors import InvalidSubreddit
 import re
@@ -16,8 +16,8 @@ class SmallSubBot(Base):
         self.OAUTH_FILENAME = self.config.get(self.BOT_NAME, 'oauth')
         self.REGEX = re.compile(r"\s/?[rR]/([A-Za-z0-9_]*)[^\s\].,)]*")
         self.DESCRIPTION_REGEX = re.compile(r"(\[).*?(\]\(.*?\))|(\\n)|(#)")  # Helps escaping shitty reddit markdown
-        self.session, self.oauth = self.factory_reddit(config_file=dirname(__file__)+"/../config/"+self.OAUTH_FILENAME)
-        self.responses = SmallSubText(dirname(__file__) + "/../config/bot_config.ini")
+        self.factory_reddit(config_file=resource_filename("config", self.OAUTH_FILENAME))
+        self.responses = SmallSubText("bot_config.ini")
         self.banwords = ['x-post', 'xpost', 'crosspost', 'cross post', 'x/post',
                          'x\\post', 'via', 'from', 'hhh', 'trending subreddits']
 
@@ -117,9 +117,9 @@ class SmallSubText:
     subreddit_binding = ""
     outro = ""
 
-    def __init__(self, filepath):
+    def __init__(self, filename):
         cp = ConfigParser()
-        cp.read(filepath)
+        cp.read(resource_filename("config", filename))
         self.intro = cp.get('SmallSubBot', 'intro')
         self.subreddit_binding = cp.get('SmallSubBot', 'subreddit_binding')
         self.outro = cp.get('SmallSubBot', 'outro')
@@ -135,7 +135,7 @@ def init(database):
 
 
 if __name__ == "__main__":
-    sst = SmallSubText(dirname(__file__) + "/../config/bot_config.ini")
+    sst = SmallSubText("bot_config.ini")
     print(sst)
     ssb = SmallSubBot()
     print(ssb.execute_textbody("/r/dota2 r/dota2 r/bestof r/wtf r/dota2modding /r/dota2modding"))

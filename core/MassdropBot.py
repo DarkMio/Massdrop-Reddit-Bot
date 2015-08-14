@@ -1,13 +1,15 @@
 from configparser import ConfigParser
-from os import path, popen
+from pkg_resources import resource_filename
 from time import time, sleep, strptime
-from praw.handlers import MultiprocessHandler
 from sys import exit
+import pkgutil
+import traceback
+
+from praw.handlers import MultiprocessHandler
 from praw.errors import Forbidden, NotFound
 import praw
-import core.filtering as filtering
-import pkgutil
 
+import plugins
 from core import LogProvider
 from core.MultiThreader import MultiThreader
 from core.DatabaseProvider import DatabaseProvider
@@ -16,6 +18,7 @@ from core.BaseClass import Base
 
 
 class MassdropBot:
+    """Core Process. It holds everything together and coordinates the plugins."""
     logger = None  # Logging Session with full console setup.
     config = None  # Holds later a full set of configs from ConfigParser.
     users = None  # Holds usernames
@@ -64,7 +67,7 @@ class MassdropBot:
         # cleaning of the list
         self.responders = list()
         # preparing the right sub path.
-        package = filtering
+        package = plugins
         prefix = package.__name__ + "."
 
         # we're running through all
@@ -103,6 +106,8 @@ class MassdropBot:
             break
 
     def submission_thread(self):
+        """The submission thread runs down all submission from the specified sub (usually /r/all)
+           Then it filters out all banned users and subreddits and then fires submissions at your plugins."""
         self.logger.info("Opened submission stream successfully.")
         for subm in self.submissions:
             for responder in self.responders:
@@ -145,7 +150,6 @@ class MassdropBot:
                         else:
                             raise e
                     except Exception as e:
-                        import traceback
                         self.logger.error(traceback.print_exc())
                         self.logger.error("{} error: {}".format(responder.BOT_NAME, e))
                 self.lock.release()
@@ -183,7 +187,6 @@ class MassdropBot:
                         else:
                             raise e
                     except Exception as e:
-                        import traceback
                         self.logger.error(traceback.print_exc())
                         self.logger.error("{} error: {}".format(responder.BOT_NAME, e))
                 self.lock.release()
@@ -206,8 +209,10 @@ class MassdropBot:
                             responder.update_procedure(**thread_dict)
                         except Exception as e:
                             self.logger.error("{} error: {}".format(responder.BOT_NAME, e, e.__traceback__))
-                responder.get_unread_messages()
-
+                try:
+                    responder.get_unread_messages()
+                except Exception as e:
+                    self.logger.error(traceback.print_exc())
             self.database.clean_up_database(int(time()) - int(self.delete_after))
             self.lock.release()
             # after working through all update threads, sleep for five minutes. #saveresources
@@ -224,7 +229,7 @@ class MassdropBot:
     def read_config(self):
         """Reads the config."""
         self.config = ConfigParser()
-        self.config.read(path.dirname(__file__) + "/config/config.ini")
+        self.config.read(resource_filename('config', 'config.ini'))
         self.logger.info("Configuration read and set up properly.")
 
 

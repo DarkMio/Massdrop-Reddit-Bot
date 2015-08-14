@@ -1,13 +1,11 @@
 from core.BaseClass import Base
 from configparser import ConfigParser
-from os.path import dirname
-from bs4 import BeautifulSoup
+from pkg_resources import resource_filename
 from urllib.request import urlopen
 from urllib.error import HTTPError
 from datetime import datetime
 from json import loads as json_loads
 import re
-from json import loads
 from praw.objects import Comment
 from misc.mutliple_strings import multiple_of
 
@@ -22,8 +20,8 @@ class Massdrop(Base):
         self.USERNAME = self.config.get(self.BOT_NAME, 'username')
         self.OAUTH_FILENAME = self.config.get(self.BOT_NAME, 'oauth')
         self.REGEX = re.compile(r"(?P<url>https?:\/\/(?:www\.)?massdrop\.com\/buy\/[^\s;,.\])]*)", re.UNICODE)
-        self.session, self.oauth = self.factory_reddit(config_file=dirname(__file__)+"/../config/"+self.OAUTH_FILENAME)
-        self.responses = MassdropText(dirname(__file__) + "/../config/bot_config.ini")
+        self.factory_reddit(config_file=resource_filename("config", self.OAUTH_FILENAME))
+        self.responses = MassdropText("bot_config.ini")
 
         self.RE_DATASET = re.compile('"DropsStore":({.*?}),"StatsStore"', re.UNICODE)
 
@@ -163,9 +161,9 @@ class MassdropText:
     outro_drop = ""
     update_binding = ""
 
-    def __init__(self, filepath):
+    def __init__(self, filename):
         ch = ConfigParser()
-        ch.read(filepath)
+        ch.read(resource_filename("config", filename))
         self.intro = ch.get('MassdropBot', 'intro')
         self.intro_drop = ch.get('MassdropBot', 'intro_drop')
         self.product_binding = ch.get('MassdropBot', 'product_binding')
@@ -199,7 +197,7 @@ def init(database):
 
 if __name__ == "__main__":
     from core.DatabaseProvider import DatabaseProvider
-    mt = MassdropText("../config/bot_config.ini")
+    mt = MassdropText("bot_config.ini")
     print(mt)
     db = DatabaseProvider()
     md = Massdrop(db)

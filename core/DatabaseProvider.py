@@ -4,6 +4,13 @@ from pkg_resources import resource_filename
 
 
 class DatabaseProvider:
+    """This object provides a full set of features to interface with a basic session database,
+       which includes following tables:
+       - storage        | saves the state of the bot and helps against double posting
+       - update_threads | storage to store thing_ids which have to be updated by your plugin
+       - modules        | persistent module storage
+       - userbans       | a table to ban users from being able to trigger certain plugins
+       - subbans        | a table to ban subreddits from being able to trigger certain plugins"""
     logger = None   # Logger
     db = None       # Reference to DB session
     cur = None      # Reference to DB cursor
@@ -11,7 +18,7 @@ class DatabaseProvider:
     def __init__(self):
         self.logger = logging.getLogger("database")
         self.db = sqlite3.connect(
-            resource_filename("core.config", "storage.db"),
+            resource_filename("config", "storage.db"),
             check_same_thread=False,
             isolation_level=None
         )
@@ -23,6 +30,7 @@ class DatabaseProvider:
         self.logger.warning("DB connection has been closed.")
 
     def database_init(self):
+        """Initializes the dabatase and creates necessary tables."""
         info = lambda x: self.logger.info("Table '{}' had to be generated.".format(x))
 
         if not self.__database_check_if_exists('storage'):
@@ -163,7 +171,6 @@ class DatabaseProvider:
     def register_module(self, module):
         """Registers a module (or notifies you if it has been already registered)."""
         if self.__check_if_module_exists(module):
-            self.logger.error("Module is already registered.")
             return
         self.logger.debug("Module {} has been registered.".format(module))
         self.cur.execute('INSERT INTO modules VALUES ((?))', (module,))
