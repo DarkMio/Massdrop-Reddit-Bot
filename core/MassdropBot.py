@@ -65,7 +65,7 @@ class MassdropBot:
         return (hasattr(thing, 'name') and not db.retrieve_thing(thing.name, responder.BOT_NAME)) and \
                ((hasattr(thing.author, 'name') and not db.check_user_ban(thing.author.name, responder.BOT_NAME)) and
                 (hasattr(thing.subreddit, 'display_name') and not db.check_subreddit_ban(thing.subreddit.display_name,
-                                                                                        responder.BOT_NAME)))
+                                                                                         responder.BOT_NAME)))
 
     def load_responders(self):
         """Main method to load sub-modules, which are designed as a framework for multiple bots.
