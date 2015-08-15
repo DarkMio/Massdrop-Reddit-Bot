@@ -84,7 +84,7 @@ class DatabaseProvider:
                             ON storage.bot_module = modules._ROWID_""")
         return self.cur.fetchall()
 
-    def get_thing_from_storage(self, thing_id, module):
+    def retrieve_thing(self, thing_id, module):
         """Returns a single thing from the storage - therefore is true if it exists"""
         self.__error_if_not_exists(module)
         self.cur.execute("""SELECT thing_id, bot_module, timestamp FROM storage
@@ -185,7 +185,7 @@ class DatabaseProvider:
         self.cur.execute('SELECT * FROM userbans WHERE username = (?) LIMIT 1', (username,))
         return self.cur.fetchall()
 
-    def check_if_user_is_banned(self, username, module):
+    def check_user_ban(self, username, module):
         """Checks if a particular user has been banned - searches per module and globally"""
         self.cur.execute('SELECT * FROM userbans '
                          'WHERE username = (?) AND '
@@ -233,7 +233,7 @@ class DatabaseProvider:
         self.cur.execute('SELECT * FROM subbans WHERE subreddit = (?) LIMIT 1', (username,))
         return self.cur.fetchall()
 
-    def check_if_subreddit_is_banned(self, username, module):
+    def check_subreddit_ban(self, username, module):
         """Checks if a particular user has been banned - searches per module and globally"""
         self.cur.execute('SELECT * FROM subbans '
                          'WHERE subreddit = (?) AND '
