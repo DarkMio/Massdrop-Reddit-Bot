@@ -70,7 +70,9 @@ class SmallSubBot(Base):
             sub_name = subreddit
             if sub_name.lower() == source_subreddit_name.lower() or len(sub_name) <= 3:
                 continue
-
+            elif sub_name.lower() == 'random':
+                subreddit_infos.append({'subreddit': sub_name, 'description': "Reddit links you to a random sub."})
+                continue
             already_found = False
             for dicts in subreddit_infos:
                 if dicts['subreddit'] == sub_name:
@@ -80,7 +82,7 @@ class SmallSubBot(Base):
             try:
                 target = self.session.get_subreddit(sub_name)
                 if hasattr(target, 'subscribers') and target.subscribers < 10**5:
-                    description = self.DESCRIPTION_REGEX.sub('', target.description)
+                    description = target.title
                     description = self.description_formatter(description, target.over18)
                     subreddit_infos.append({'subreddit': sub_name, 'description': description})
             except InvalidSubreddit:
