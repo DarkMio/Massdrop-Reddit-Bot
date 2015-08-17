@@ -6,7 +6,7 @@ import pkgutil
 import traceback
 
 from praw.handlers import MultiprocessHandler
-from praw.errors import Forbidden, NotFound
+from praw.errors import *
 import praw
 
 import plugins
@@ -143,11 +143,9 @@ class MassdropBot:
                                                                                                 name))
                     except NotFound:
                         pass
-                    except praw.errors.RateLimitExceeded:
-                        self.logger.error('{} posts too often. If you see this more often, '
-                                          'consider changing the reply-rate.')
-                    except praw.errors.APIException as e:
-                        if e.error_type == 'DELETED_LINK':
+                    except (APIException, InvalidSubmission) as e:
+                        if isinstance(e, APIException) and e.error_type == 'DELETED_LINK' \
+                                or isinstance(e, InvalidSubmission):
                             self.logger.debug('{} tried to comment on an already deleted resource - ignored.'.format(
                                 responder.BOT_NAME))
                             pass
@@ -181,13 +179,15 @@ class MassdropBot:
                                                                                                 name))
                     except NotFound:
                         pass
-                    except praw.errors.APIException as e:
-                        if e.error_type == 'DELETED_LINK':
+                    except (APIException, InvalidSubmission) as e:
+                        if isinstance(e, APIException) and e.error_type == 'DELETED_LINK' \
+                                or isinstance(e, InvalidSubmission):
                             self.logger.debug('{} tried to comment on an already deleted resource - ignored.'.format(
                                 responder.BOT_NAME))
                             pass
                         else:
-                            raise e
+                            self.logger.error(traceback.print_exc())
+                            self.logger.error("{} error: {}".format(responder.BOT_NAME, e))
                     except Exception as e:
                         self.logger.error(traceback.print_exc())
                         self.logger.error("{} error: {}".format(responder.BOT_NAME, e))
