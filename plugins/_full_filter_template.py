@@ -30,7 +30,7 @@ class FilterExampleFull(Base):
         pass
 
     def on_new_message(self, message):
-        self.standard_ban_procedure()
+        self.standard_ban_procedure(message)
         pass
 
 
