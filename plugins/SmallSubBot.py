@@ -82,7 +82,7 @@ class SmallSubBot(Base):
             try:
                 target = self.session.get_subreddit(sub_name)
                 if hasattr(target, 'subscribers') and target.subscribers < 10**5:
-                    description = target.title
+                    description = target.public_description
                     description = self.description_formatter(description, target.over18)
                     subreddit_infos.append({'subreddit': sub_name, 'description': description})
             except InvalidSubreddit:
