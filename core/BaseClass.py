@@ -31,7 +31,7 @@ class Base(metaclass=ABCMeta):
         :return: True if possible
         :rtype: bool
         """
-        assert self.USERNAME and self.OAUTH_FILENAME and self.DESCRIPTION, \
+        assert hasattr(self, 'DESCRIPTION') and hasattr(self, 'BOT_NAME'), \
             "Failed constant variable integrity check. Check your object and its initialization."
         return True
 
