@@ -19,49 +19,29 @@ class Massdrop(Base):
         self.DESCRIPTION = self.config.get(self.BOT_NAME, 'description')
         self.USERNAME = self.config.get(self.BOT_NAME, 'username')
         self.OAUTH_FILENAME = self.config.get(self.BOT_NAME, 'oauth')
-        self.REGEX = re.compile(r"(?P<url>https?:\/\/(?:www\.)?massdrop\.com\/buy\/[^\s;,.\])]*)", re.UNICODE)
+        self.REGEX = re.compile(r"(https?:\/\/(?:www\.)?massdrop\.com\/buy\/([\w\d-]*)[^\s;,.\])]*)", re.UNICODE)
         self.factory_reddit(config_path=resource_filename("config", self.OAUTH_FILENAME))
         self.responses = MassdropText("bot_config.ini")
-
+        self.API_URL = 'https://www.massdrop.com/api/drops;dropUrl={}'
         self.RE_DATASET = re.compile('"DropsStore":({.*?}),"StatsStore"', re.UNICODE)
 
     def execute_comment(self, comment):
-        url = self.REGEX.findall(comment.body)
-        if url:
-            response, time_ends_in = self.generate_response(url)
-            if response:
-                self.oauth.refresh()
-                generated = self.session._add_comment(comment.fullname, response)
-                if time_ends_in:
-                    self.database.insert_into_update(generated.name, self.BOT_NAME,
-                                                     time_ends_in.seconds + 13*60*60, 43200)
-                return True
-        return False
+        return self.submission_action(comment, comment.body, comment.fullname)
 
     def execute_submission(self, submission):
-        url = self.REGEX.findall(submission.selftext)
-        if url:
-            response, time_ends_in = self.generate_response(url)
-            if response:
-                self.oauth.refresh()
-                generated = self.session._add_comment(submission.name, response)
-                if time_ends_in:
-                    self.database.insert_into_update(generated.name, self.BOT_NAME,
-                                                     time_ends_in.seconds + 13*60*60, 43200)
-                return True
-        return False
+        return self.submission_action(submission, submission.selftext, submission.name)
 
     def execute_link(self, link_submission):
-        link = self.REGEX.findall(link_submission.url)
-        if link:
-            response, time_ends_in = self.generate_response(link)
-            if response:
-                self.oauth.refresh()
-                generated = self.session._add_comment(link_submission.name, response)
-                if time_ends_in:
-                    self.database.insert_into_update(generated.name, self.BOT_NAME,
-                                                     time_ends_in.seconds + 13*60*60, 43200)
-                return True
+        return self.submission_action(link_submission, link_submission.url, link_submission.name)
+
+    def submission_action(self, thing, thing_content, target):
+        response, time_ends_in = self.general_action(thing_content)
+        if response:
+            self.oauth.refresh()
+            generated = self.session._add_comment(target, response)
+            if time_ends_in:
+                self.database.insert_into_update(generated.name, self.BOT_NAME, time_ends_in.seconds + 13*60*60, 43200)
+            return True
         return False
 
     def execute_titlepost(self, title_only):
@@ -76,11 +56,8 @@ class Massdrop(Base):
             return
 
         if isinstance(comment, Comment):
-            url = self.REGEX.findall(comment.body)
-            if url:
-                response, time_left = self.generate_response(url, from_update=True)
-                comment.edit(response)
-                return
+            response, time_left = self.general_action(comment.body, True)
+            comment.edit(response)
 
     def on_new_message(self, message):
         self.standard_ban_procedure(message)
@@ -91,7 +68,17 @@ class Massdrop(Base):
             response, time_ends_at = self.generate_response(url)
             print(response)
 
-    def generate_response(self, massdrop_links, time_left=None, from_update=False):
+    def general_action(self, body, from_update=False):
+        results = self.REGEX.findall(body)
+        carebox = []
+        for result in results:
+            if not from_update and 'mode=guest_open' in result[0]:
+                continue
+            carebox.append(result[1])
+        if carebox:
+            return self.generate_response(carebox, from_update=from_update)
+
+    def generate_response(self, massdrop_links, from_update=False):
         """Takes multiple links at once, iterates, generates a response appropiately.
            Idea is to take into account: Title, Price, Running Drop, Time left"""
         drop_field = []
@@ -100,12 +87,8 @@ class Massdrop(Base):
         time_ends_in = None
         will_update = False
         for url in massdrop_links:
-            # if that is already a fixed url, we may ignore it.
-            fix_url = url
-            if 'mode=guest_open' in url and not from_update:
-                continue
-            if not from_update:
-                fix_url = fix_url + ('?', '&')['?' in url] + 'mode=guest_open'
+            fix_url = "https://massdrop.com/buy/{}?mode=guest_open".format(url)
+
             try:
                 content = urlopen(fix_url).read().decode('utf-8')
                 drop_data = self.RE_DATASET.search(content).groups()[0]
