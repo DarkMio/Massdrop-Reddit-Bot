@@ -1,11 +1,9 @@
+import re
 from core.BaseClass import Base
 from configparser import ConfigParser
 from pkg_resources import resource_filename
-from urllib.request import urlopen
-from urllib.error import HTTPError
+from requests import get as requests_get
 from datetime import datetime
-from json import loads as json_loads
-import re
 from praw.objects import Comment
 from misc.mutliple_strings import multiple_of
 
@@ -23,18 +21,17 @@ class Massdrop(Base):
         self.factory_reddit(config_path=resource_filename("config", self.OAUTH_FILENAME))
         self.responses = MassdropText("bot_config.ini")
         self.API_URL = 'https://www.massdrop.com/api/drops;dropUrl={}'
-        self.RE_DATASET = re.compile('"DropsStore":({.*?}),"StatsStore"', re.UNICODE)
 
     def execute_comment(self, comment):
-        return self.submission_action(comment, comment.body, comment.fullname)
+        return self.submission_action(comment.body, comment.fullname)
 
     def execute_submission(self, submission):
-        return self.submission_action(submission, submission.selftext, submission.name)
+        return self.submission_action(submission.selftext, submission.name)
 
     def execute_link(self, link_submission):
-        return self.submission_action(link_submission, link_submission.url, link_submission.name)
+        return self.submission_action(link_submission.url, link_submission.name)
 
-    def submission_action(self, thing, thing_content, target):
+    def submission_action(self, thing_content, target):
         response, time_ends_in = self.general_action(thing_content)
         if response:
             self.oauth.refresh()
@@ -63,13 +60,11 @@ class Massdrop(Base):
         self.standard_ban_procedure(message)
 
     def execute_textbody(self, string):
-        url = self.REGEX.findall(string)
-        if url:
-            response, time_ends_at = self.generate_response(url)
-            print(response)
+        result, time_ends_at = self.general_action(string)
+        return result
 
     def general_action(self, body, from_update=False):
-        results = self.REGEX.findall(body)
+        results = self.REGEX.findall(body)  # Result: [full url, api entry]
         carebox = []
         for result in results:
             if not from_update and 'mode=guest_open' in result[0]:
@@ -88,17 +83,17 @@ class Massdrop(Base):
         will_update = False
         for url in massdrop_links:
             fix_url = "https://massdrop.com/buy/{}?mode=guest_open".format(url)
-
+            api_url = self.API_URL.format(url)
             try:
-                content = urlopen(fix_url).read().decode('utf-8')
-                drop_data = self.RE_DATASET.search(content).groups()[0]
-                drop_data = json_loads(drop_data)
-                product_name = drop_data['drop']['name']
-                if drop_data['drop']['statusCode'] == 1:
-                    current_price = "${:.2f}".format(drop_data['drop']['currentPrice'])
-                    prices = [x['price'] for x in drop_data['drop']['steps']]
-                    prices = massdrop_pricer(current_price, prices)
-                    time_ends_at = datetime.strptime(drop_data['drop']['endAt'], '%Y-%m-%dT%H:%M:%S.%fZ')
+                response = requests_get(api_url).json()
+                if 'error' in response: continue  # API doesn't have response codes, responds with 200 OK always
+                product_name = response['name']
+                # statusCode: 1 - Drop is active and running
+                if response['statusCode'] == 1:
+                    current_price = "${:.2f}".format(response['currentPrice'])
+                    prices = [x['price'] for x in response['steps']]
+                    prices = self.massdrop_pricer(current_price, prices)
+                    time_ends_at = datetime.strptime(response['endAt'], '%Y-%m-%dT%H:%M:%S.%fZ')
                     time_ends_in = time_ends_at - datetime.utcnow()
                     time_left = " / " + self.time_formatter(time_ends_in)
                     will_update = True
@@ -108,9 +103,6 @@ class Massdrop(Base):
                 drop_field.append({"title": product_name, 'current_price': current_price, 'prices': prices,
                                    "time_left": time_left, 'fix_url': fix_url})
                 fixed_urls += 1
-            except HTTPError as e:
-                self.logger.error("HTTPError:", e.msg)
-                pass
             except Exception as e:
                 self.logger.error("Oh noes, an unexpected error happened:", e)
 
@@ -127,6 +119,21 @@ class Massdrop(Base):
                    textbody + self.responses.outro_drop.format(update=update_string)
 
         return textbody.replace('\\n', '\n'), time_ends_in
+
+    @staticmethod
+    def massdrop_pricer(price, pricelist):
+        if isinstance(price, str) and price.startswith("$"):
+            price = price[1:].replace(',', '')
+        pricelist = [float(x) for x in pricelist if float(x) < float(price)]
+        if len(pricelist) > 1:
+            pricestring = "${:.2f}".format(pricelist[0])
+            for item in pricelist[1:]:
+                pricestring += "/${:.2f}".format(item)
+            return ': drops to ' + pricestring
+        elif len(pricelist) == 1:
+            return ': drops to ' + "${:.2f}".format(pricelist[0])
+        else:
+            return ""
 
     @staticmethod
     def time_formatter(time_left):
@@ -156,21 +163,6 @@ class MassdropText:
         p = "\n\t"
         return "Fields:" + p + self.intro + p + self.intro_drop + p + self. product_binding + p + self.update_binding \
                + p + self.outro_drop
-
-
-def massdrop_pricer(price, pricelist):
-    if isinstance(price, str) and price.startswith("$"):
-        price = price[1:].replace(',', '')
-    pricelist = [float(x) for x in pricelist if float(x) < float(price)]
-    if len(pricelist) > 1:
-        pricestring = "${:.2f}".format(pricelist[0])
-        for item in pricelist[1:]:
-            pricestring += "/${:.2f}".format(item)
-        return ': drops to ' + pricestring
-    elif len(pricelist) == 1:
-        return ': drops to ' + "${:.2f}".format(pricelist[0])
-    else:
-        return ""
 
 
 def init(database):
