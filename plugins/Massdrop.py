@@ -72,6 +72,7 @@ class Massdrop(Base):
             carebox.append(result[1])
         if carebox:
             return self.generate_response(carebox, from_update=from_update)
+        return None, None
 
     def generate_response(self, massdrop_links, from_update=False):
         """Takes multiple links at once, iterates, generates a response appropiately.
