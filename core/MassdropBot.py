@@ -52,6 +52,7 @@ class MassdropBot:
                               "Please make sure that the server is running and responding. "
                               "Bot is shutting down now.")
             self.logger.error(e)
+            self.logger.error(traceback.print_exc())
             exit(-1)
         self.delete_after = self.config.get('REDDIT', 'delete_after')
         self.submission_stream()
@@ -117,81 +118,56 @@ class MassdropBot:
            Then it filters out all banned users and subreddits and then fires submissions at your plugins."""
         self.logger.info("Opened submission stream successfully.")
         for subm in self.submissions:
-            for responder in self.responders:
-                self.lock.acquire(True)
-                # Check beforehand if a subreddit or a user is banned from the bot / globally.
-                # Also using "fullname" or any other sort of ID ends in an API-call (which is too slow).
-                if self._filter_single_thing(subm, responder):
-                    try:
-                        if subm.is_self and subm.selftext:
-                            responded = responder.execute_submission(subm)
-                        elif subm.is_self:
-                            responded = responder.execute_titlepost(subm)
-                        else:
-                            responded = responder.execute_link(subm)
-
-                        # a responder should return with true of false, so we can manage the database for it here.
-                        # reminder: writing on multiple threads is bad, reading is always fine.
-                        if responded:
-                            self.database.insert_into_storage(subm.name, responder.BOT_NAME)
-
-                    except Forbidden:
-                        name = subm.subreddit.display_name
-                        self.database.add_subreddit_ban_per_module(name, responder.BOT_NAME)
-                        self.logger.error("It seems like {} is banned in '{}'. The bot will ban the subreddit now"
-                                          " from the module to escape it automatically.".format(responder.BOT_NAME,
-                                                                                                name))
-                    except NotFound:
-                        pass
-                    except (APIException, InvalidSubmission) as e:
-                        if isinstance(e, APIException) and e.error_type == 'DELETED_LINK' \
-                                or isinstance(e, InvalidSubmission):
-                            self.logger.debug('{} tried to comment on an already deleted resource - ignored.'.format(
-                                responder.BOT_NAME))
-                            pass
-                        else:
-                            self.logger.error(traceback.print_exc())
-                            self.logger.error("{} error: {}".format(responder.BOT_NAME, e))
-                    except Exception as e:
-                        self.logger.error(traceback.print_exc())
-                        self.logger.error("{} error: {}".format(responder.BOT_NAME, e))
-                self.lock.release()
+            self.comment_submission_action(subm)
 
     def comment_thread(self):
         """The comment thread runs down all comments from the specified sub (usually /r/all)
            then filters out banned users and subreddits and fires it at your plugins."""
         self.logger.info("Opened comment stream successfully.")
         for comment in self.comments:
-            for responder in self.responders:
-                self.lock.acquire(True)
-                # Check beforehand if a subreddit or a user is banned from the bot / globally.
-                if self._filter_single_thing(comment, responder):
-                    try:
-                        if responder.execute_comment(comment):
-                            self.database.insert_into_storage(comment.name, responder.BOT_NAME)
+            self.comment_submission_action(comment)
 
-                    except Forbidden:
-                        name = comment.subreddit.display_name
-                        self.database.add_subreddit_ban_per_module(name,
-                                                                   responder.BOT_NAME)
-                        self.logger.error("It seems like {} is banned in '{}'. The bot will ban the subreddit now"
-                                          " from the module to escape it automatically.".format(responder.BOT_NAME,
-                                                                                                name))
-                    except NotFound:
+    def comment_submission_action(self, thing):
+        """Refactored to one big execution chain - smart enough to split comments and submissions apart."""
+        for responder in self.responders:
+            self.lock.acquire(True)
+            # Check beforehand if a subreddit or a user is banned from the bot / globally.
+            if self._filter_single_thing(thing, responder):
+                try:
+                    if isinstance(thing, praw.objects.Submission) and thing.is_self and thing.selftext:
+                            responded = responder.execute_submission(thing)
+                    elif isinstance(thing, praw.objects.Submission) and thing.is_self:
+                        responded = responder.execute_titlepost(thing)
+                    elif isinstance(thing, praw.objects.Submission):
+                        responded = responder.execute_link(thing)
+                    else:
+                        responded = responder.execute_comment(thing)
+
+                    if responded:
+                            self.database.insert_into_storage(thing.name, responder.BOT_NAME)
+
+                except Forbidden:
+                    name = thing.subreddit.display_name
+                    self.database.add_subreddit_ban_per_module(name,
+                                                               responder.BOT_NAME)
+                    self.logger.error("It seems like {} is banned in '{}'. The bot will ban the subreddit now"
+                                      " from the module to escape it automatically.".format(responder.BOT_NAME,
+                                                                                            name))
+                except NotFound:
+                    pass
+                except (APIException, InvalidSubmission) as e:
+                    if isinstance(e, APIException) and e.error_type == 'DELETED_LINK' \
+                            or isinstance(e, InvalidSubmission):
+                        self.logger.debug('{} tried to comment on an already deleted resource - ignored.'.format(
+                            responder.BOT_NAME))
                         pass
-                    except (APIException, InvalidSubmission) as e:
-                        if isinstance(e, APIException) and e.error_type == 'DELETED_LINK' \
-                                or isinstance(e, InvalidSubmission):
-                            self.logger.debug('{} tried to comment on an already deleted resource - ignored.'.format(
-                                responder.BOT_NAME))
-                            pass
-                        else:
-                            self.logger.error(traceback.print_exc())
-                            self.logger.error("{} error: {}".format(responder.BOT_NAME, e))
-                    except Exception as e:
+                    else:
                         self.logger.error(traceback.print_exc())
-                        self.logger.error("{} error: {}".format(responder.BOT_NAME, e))
-                self.lock.release()
+                        self.logger.error("{} error: {}".format(responder.BOT_NAME, str(e)))
+                except Exception as e:
+                    self.logger.error(traceback.print_exc())
+                    self.logger.error("{} error: {}".format(responder.BOT_NAME, str(e)))
+            self.lock.release()
 
     def update_thread(self):
         """The update-thread does a lot of different tasks.
