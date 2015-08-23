@@ -56,16 +56,17 @@ class JiffierBot(Base):
             if result.ok:
                 gfy_item = result.json()['gfyItem']
                 size = '{:.1f}'.format(gfy_item['gifSize'] / gfy_item['webmSize'])
-                title = [fix_url, gfy_item['title']][gfy_item['title']]
+                title = [fix_url, gfy_item['title']][gfy_item['title'] is True]
                 reddit = gfy_item['redditId']
                 carebox.append({'fix_url': fix_url, 'size': size, 'title': title, 'reddit': reddit})
 
         for gfycat in carebox:
-            textbody += self.responses.gfycat_binding.format(gfycat)
+            textbody += self.responses.gfycat_binding.format(**gfycat)
             if gfycat['reddit']:
                 origin = self.session.get_submission(submission_id=gfycat['reddit'])
-                caredict = {'upvote': origin.upvote_ratio*100, 'title': origin.title, 'url': origin.short_link}
-                textbody += self.responses.original_submission.format(caredict)
+                caredict = {'upvote': origin.upvote_ratio*100, 'title': origin.title,
+                            'url': 'https://np.reddit.com/[}/'.format(gfycat['reddit'])}
+                textbody += self.responses.original_submission.format(**caredict)
 
         textbody = self.responses.intro + textbody + self.responses.outro
         return textbody.replace('\\n', '\n')
