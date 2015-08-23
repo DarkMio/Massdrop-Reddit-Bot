@@ -161,12 +161,9 @@ class MassdropBot:
                         self.logger.debug('{} tried to comment on an already deleted resource - ignored.'.format(
                             responder.BOT_NAME))
                         pass
-                    else:
-                        self.logger.error(traceback.print_exc())
-                        self.logger.error("{} error: {}".format(responder.BOT_NAME, str(e)))
                 except Exception as e:
                     self.logger.error(traceback.print_exc())
-                    self.logger.error("{} error: {}".format(responder.BOT_NAME, str(e)))
+                    self.logger.error("{} error: {} < {}".format(responder.BOT_NAME, e.__class__.__name__, e))
             self.lock.release()
 
     def update_thread(self):
@@ -189,7 +186,7 @@ class MassdropBot:
                         try:
                             responder.update_procedure(**thread_dict)
                         except Exception as e:
-                            self.logger.error("{} error: {}".format(responder.BOT_NAME, e, e.__traceback__))
+                            self.logger.error("{} error: {} < {}".format(responder.BOT_NAME, e.__class__.__name__, e))
                 try:
                     responder.get_unread_messages()
                 except Exception as e:
