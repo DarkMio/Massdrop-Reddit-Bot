@@ -105,7 +105,7 @@ class Massdrop(Base):
                                    "time_left": time_left, 'fix_url': fix_url})
                 fixed_urls += 1
             except Exception as e:
-                self.logger.error("Oh noes, an unexpected error happened:", e)
+                self.logger.error("Oh noes, an unexpected error happened: {} < {}".format(e.__class__.__name__, e))
 
         if len(drop_field) == 0:
             return None, None
