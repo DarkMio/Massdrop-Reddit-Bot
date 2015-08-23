@@ -19,17 +19,16 @@ class JiffierBot(Base):
         self.responses = JifferText('bot_config.ini')
 
     def execute_comment(self, comment):
-        self.general_action(comment.body, comment.fullname)
-        pass
+        return self.general_action(comment.body, comment.fullname)
 
     def execute_titlepost(self, title_only):
         pass
 
     def execute_link(self, link_submission):
-        self.general_action(link_submission.url, link_submission.name)
+        return self.general_action(link_submission.url, link_submission.name)
 
     def execute_submission(self, submission):
-        self.general_action(submission.selftext, submission.name)
+        return self.general_action(submission.selftext, submission.name)
 
     def update_procedure(self, thing_id, created, lifetime, last_updated, interval):
         pass
@@ -65,7 +64,7 @@ class JiffierBot(Base):
             if gfycat['reddit']:
                 origin = self.session.get_submission(submission_id=gfycat['reddit'])
                 caredict = {'upvote': origin.upvote_ratio*100, 'title': origin.title,
-                            'url': 'https://np.reddit.com/[}/'.format(gfycat['reddit'])}
+                            'url': 'https://np.reddit.com/{}/'.format(gfycat['reddit'])}
                 textbody += self.responses.original_submission.format(**caredict)
 
         textbody = self.responses.intro + textbody + self.responses.outro
@@ -95,3 +94,7 @@ class JifferText:
 def init(database):
     """Init Call from module importer to return only the object itself, rather than the module."""
     return JiffierBot(database)
+
+
+if __name__ == '__main__':
+    JiffierBot(None)
