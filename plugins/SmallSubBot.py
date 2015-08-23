@@ -1,7 +1,7 @@
 from core.BaseClass import Base
 from pkg_resources import resource_filename
 from configparser import ConfigParser
-from praw.errors import InvalidSubreddit
+from praw.errors import InvalidSubreddit, RateLimitExceeded
 import re
 
 
@@ -59,7 +59,10 @@ class SmallSubBot(Base):
             self.oauth.refresh()
             response = self.generate_response(result, submission.subreddit.display_name)
             if response:
-                self.session._add_comment(submission.name, response)
+                try:
+                    self.session._add_comment(submission.name, response)
+                except RateLimitExceeded:
+                    self.logger.error('RateLimitExceeded - skipping the comment.')
                 return True
         return False
 
