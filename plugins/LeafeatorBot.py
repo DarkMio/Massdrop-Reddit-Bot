@@ -19,7 +19,7 @@ class LeafeatorBot(Base):
             re.IGNORECASE)
 
     def execute_comment(self, comment):
-        return self.general_action(comment.body, comment.fullname, comment.subreddit.display_name)
+        return self.general_action(comment.body, comment.fullname, comment.subreddit.display_name, comment.author.name)
 
     def execute_titlepost(self, title_only):
         pass
@@ -28,13 +28,14 @@ class LeafeatorBot(Base):
         pass
 
     def execute_submission(self, submission):
-        return self.general_action(submission.selftext, submission.name, submission.subreddit.display_name)
+        return self.general_action(submission.selftext, submission.name, submission.subreddit.display_name,
+                                   submission.author.name)
 
     def update_procedure(self, thing_id, created, lifetime, last_updated, interval):
         pass
 
-    def general_action(self, body, thing_id, subreddit):
-        if not subreddit.lower() in self.APPROVE:
+    def general_action(self, body, thing_id, subreddit, username):
+        if not subreddit.lower() in self.APPROVE or 'leafeator' in username.lower():
             # filtering out all other stuff
             return False
 
