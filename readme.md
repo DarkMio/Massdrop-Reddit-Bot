@@ -10,7 +10,7 @@ In case you're interested in writing reddit bots and like to see how different b
 ![Database Provider](http://progressed.io/bar/100?title=Database%20Provider)
 ![Framework](http://progressed.io/bar/100?title=Framework)
 ![Threading](http://progressed.io/bar/100?title=Threading)
-![Modules](http://progressed.io/bar/90?title=Modules)
+![Modules](http://progressed.io/bar/100?title=Modules)
 
 ## Installation & Usage
 Running on Python 3:
@@ -38,12 +38,10 @@ v0.1: Initial Commit
 
 ## Planned features & work in progress
 - Debugger-Features and startup commands.
-- Refactoring some methods, especially inside the DatabaseProvider.
 - Rewriting some chunks of the Massdrop-Plugin, it's nesting and seperation of concerns is horrible currently.
 
 ##### Planned Massdrop Features
 - Unit Order Limit
-- Mapping Massdrops new JSON-website into an object - it's actually like an API with some html-trash now.
 
 ## Help, questions, contribution
 Feel free to mail me, even here on GitHub.
