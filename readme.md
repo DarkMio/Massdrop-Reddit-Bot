@@ -30,15 +30,15 @@ This bot is now again under development. Way less complex code, more segmentatio
 v0.6: Recode of the bot. A trillion of new features, which I will document soon™
 --------------------------------------------------------------------------------------------------------------
 v0.5: Added more bots - and then it kept fucking up.
-v0.4: Should now load inifite amounts of links, represent them with the website title and respond accordingly.
+v0.4: Should now load infinite amounts of links, represent them with the website title and respond accordingly.
 v0.3: Fixing behaviour with non-escaped chars in links and stopping the self-spam.
-v0.2: Methods to query with referer-link and stuff like that
+v0.2: Methods to query with referrer-link and stuff like that
 v0.1: Initial Commit
 ```
 
 ## Planned features & work in progress
 - Debugger-Features and startup commands.
-- Rewriting some chunks of the Massdrop-Plugin, it's nesting and seperation of concerns is horrible currently.
+- Rewriting some chunks of the Massdrop-Plugin, it's nesting and separation of concerns is horrible currently.
 
 ##### Planned Massdrop Features
 - Unit Order Limit
