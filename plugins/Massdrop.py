@@ -1,3 +1,4 @@
+# coding=utf-8
 import re
 from core.BaseClass import Base
 from configparser import ConfigParser
@@ -37,7 +38,7 @@ class Massdrop(Base):
             self.oauth.refresh()
             generated = self.session._add_comment(target, response)
             if time_ends_in:
-                self.database.insert_into_update(generated.name, self.BOT_NAME, time_ends_in.seconds + 13*60*60, 43200)
+                self.database.insert_into_update(generated.name, self.BOT_NAME, time_ends_in.seconds + 13 * 3600, 43200)
             return True
         return False
 
@@ -71,11 +72,11 @@ class Massdrop(Base):
                 continue
             carebox.append(result[1])
         if carebox:
-            return self.generate_response(carebox, from_update=from_update)
+            return self.generate_response(carebox)
         return None, None
 
-    def generate_response(self, massdrop_links, from_update=False):
-        """Takes multiple links at once, iterates, generates a response appropiately.
+    def generate_response(self, massdrop_links):
+        """Takes multiple links at once, iterates, generates a response appropriately.
            Idea is to take into account: Title, Price, Running Drop, Time left"""
         drop_field = []
         textbody = ""
@@ -117,22 +118,22 @@ class Massdrop(Base):
         update_string = ['', ' ^| ^This ^comment ^updates ^every ^12 ^hours.'][will_update]
 
         textbody = self.responses.intro_drop.format(products=('product', 'products')[fixed_urls > 1]) + \
-                   textbody + self.responses.outro_drop.format(update=update_string)
+            textbody + self.responses.outro_drop.format(update=update_string)
 
         return textbody.replace('\\n', '\n'), time_ends_in
 
     @staticmethod
-    def massdrop_pricer(price, pricelist):
+    def massdrop_pricer(price, price_list):
         if isinstance(price, str) and price.startswith("$"):
             price = price[1:].replace(',', '')
-        pricelist = [float(x) for x in pricelist if float(x) < float(price)]
-        if len(pricelist) > 1:
-            pricestring = "${:.2f}".format(pricelist[0])
-            for item in pricelist[1:]:
-                pricestring += "/${:.2f}".format(item)
-            return ': drops to ' + pricestring
-        elif len(pricelist) == 1:
-            return ': drops to ' + "${:.2f}".format(pricelist[0])
+        price_list = [float(x) for x in price_list if float(x) < float(price)]
+        if len(price_list) > 1:
+            price_string = "${:.2f}".format(price_list[0])
+            for item in price_list[1:]:
+                price_string += "/${:.2f}".format(item)
+            return ': drops to ' + price_string
+        elif len(price_list) == 1:
+            return ': drops to ' + "${:.2f}".format(price_list[0])
         else:
             return ""
 
@@ -141,7 +142,7 @@ class Massdrop(Base):
         if time_left.days > 0:
             days = time_left.days
             return "{} {} left".format(days, multiple_of(days, "day", "days"))
-        hours = time_left.seconds//3600
+        hours = time_left.seconds // 3600
         return "{} {} left".format(hours, multiple_of(hours, "hour", "hours"))
 
 

@@ -1,3 +1,4 @@
+# coding=utf-8
 from core.BaseClass import Base
 from pkg_resources import resource_filename
 from configparser import ConfigParser
@@ -84,7 +85,7 @@ class SmallSubBot(Base):
             if already_found: continue
             try:
                 target = self.session.get_subreddit(sub_name)
-                if hasattr(target, 'subscribers') and target.subscribers < 10**5:
+                if hasattr(target, 'subscribers') and target.subscribers < 10 ** 5:
                     description = target.public_description
                     description = self.description_formatter(description, target.over18)
                     subreddit_infos.append({'subreddit': sub_name, 'description': description})

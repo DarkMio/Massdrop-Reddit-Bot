@@ -1,3 +1,4 @@
+# coding=utf-8
 from core.BaseClass import Base
 from pkg_resources import resource_filename
 from configparser import ConfigParser
@@ -63,7 +64,7 @@ class JiffierBot(Base):
             textbody += self.responses.gfycat_binding.format(**gfycat)
             if gfycat['reddit']:
                 origin = self.session.get_submission(submission_id=gfycat['reddit'])
-                caredict = {'upvote': origin.upvote_ratio*100, 'title': origin.title,
+                caredict = {'upvote': origin.upvote_ratio * 100, 'title': origin.title,
                             'url': 'https://np.reddit.com/{}/'.format(gfycat['reddit'])}
                 textbody += self.responses.original_submission.format(**caredict)
 

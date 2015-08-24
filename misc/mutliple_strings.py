@@ -1,7 +1,8 @@
+# coding=utf-8
 def multiple_of(value, string_of_single, string_of_multiple, return_with_value=False,
                 before_string='', after_string=''):
     """Helps with english. If the word has a form of multiple, you can feed it's value
-   and it returns you the appropiate form. (Also has some extra features, in case you have a collection of strings.)
+   and it returns you the appropriate form. (Also has some extra features, in case you have a collection of strings.)
 
     :param value: Numerical value
     :rtype value: bool or float or int

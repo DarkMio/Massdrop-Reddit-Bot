@@ -1,3 +1,4 @@
+# coding=utf-8
 import logging
 import sqlite3
 from pkg_resources import resource_filename
@@ -30,7 +31,7 @@ class DatabaseProvider:
         self.logger.warning("DB connection has been closed.")
 
     def database_init(self):
-        """Initializes the dabatase and creates necessary tables."""
+        """Initializes the database and creates necessary tables."""
         info = lambda x: self.logger.info("Table '{}' had to be generated.".format(x))
 
         if not self.__database_check_if_exists('storage'):
@@ -344,7 +345,7 @@ if __name__ == "__main__":
 #   db.purge_all_subreddit_bans()
 #   db.add_subreddit_ban_per_module(user, module)
 #   db.add_subreddit_ban_globally(user)
-#   print(db.check_if_subreddit_is_banned(user, "asdf"))
+#   print(db.check_if_subreddit_is_banned(user, "abc"))
 #   print(db.get_all_bans_per_subreddit(user))
 #   print(db.get_all_banned_subreddits())
 #   db.remove_subreddit_ban_globally(user)
@@ -354,7 +355,7 @@ if __name__ == "__main__":
 #   db.purge_all_user_bans()
 #   db.add_userban_per_module(user, module)
 #   db.add_userban_globally(user)
-#   print(db.check_if_user_is_banned(user, "asdf"))
+#   print(db.check_if_user_is_banned(user, "abc"))
 #   print(db.get_all_bans_per_user(user))
 #   print(db.get_all_userbans())
 #   db.remove_userban_globally(user)

@@ -1,3 +1,4 @@
+# coding=utf-8
 from core.BaseClass import Base
 from pkg_resources import resource_filename
 import re
@@ -13,7 +14,7 @@ class LeafeatorBot(Base):
         self.USERNAME = 'leafeator-bot'
         self.factory_config()
         self.APPROVE = ['dota2circlejerk', 'dota2', 'dotamasterrace']
-        self.RESPONSE = self.config.get('LeafeatorBot', 'response').replace('\\n', '\n')
+        self.RESPONSE = self.config.get('LeafeatorBot', 'response')
         self.REGEX = re.compile(
             r'(ancient(?!.*(apparition)).*necro(?!s)|necro.*ancient(?!.*(apparition))|leafeator-bot)',
             re.IGNORECASE)
@@ -56,5 +57,8 @@ def init(database):
 
 
 if __name__ == '__main__':
+    from praw import Reddit
+    r = Reddit(user_agent='Manual Testing')
+    cmt = r.get_info(thing_id='t1_cud1d76')
     lb = LeafeatorBot(None)
-    print(lb.RESPONSE.replace('\\n', '\n'))
+    lb.execute_comment(cmt)

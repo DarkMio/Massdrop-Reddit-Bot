@@ -1,3 +1,4 @@
+# coding=utf-8
 import logging
 import time
 import sys
@@ -11,6 +12,7 @@ LOGGING_LEVELS = {"NOTSET": logging.NOTSET, "DEBUG": logging.DEBUG,
 TIME_FORMAT = '%H:%M:%S'
 
 
+# noinspection PyMissingConstructor
 class SingleLevelFilter(logging.Filter):
     """Filters a certain logging-level out - used to split error messages to stderr instead of writing into stdout."""
     def __init__(self, passlevel, reject):
@@ -19,9 +21,9 @@ class SingleLevelFilter(logging.Filter):
 
     def filter(self, record):
         if self.reject:
-            return (record.levelno != self.passlevel)
+            return record.levelno != self.passlevel
         else:
-            return (record.levelno == self.passlevel)
+            return record.levelno == self.passlevel
 
 
 def setup_logging(log_level="INFO", console_log_level=None):
@@ -33,11 +35,10 @@ def setup_logging(log_level="INFO", console_log_level=None):
     if console_log_level is None:
         console_log_level = log_level
 
-    log_level = LOGGING_LEVELS[log_level]
+    # log_level = LOGGING_LEVELS[log_level]
     console_log_level = LOGGING_LEVELS[console_log_level]
 
     logging_format = logging.Formatter(FORMAT, datefmt=TIME_FORMAT)
-
 
     # Set up the handler for logging to console
     filter_info = SingleLevelFilter(logging.INFO, True)
@@ -74,7 +75,7 @@ def setup_logging(log_level="INFO", console_log_level=None):
 
     offset, tzname = local_time_offset()
     if offset >= 0:
-        offset = "+"+str(offset)
+        offset = "+" + str(offset)
     else:
         offset = str(offset)
 
@@ -88,9 +89,9 @@ def local_time_offset():
     t = time.time()
 
     if time.localtime(t).tm_isdst and time.daylight:
-        return -time.altzone/3600, time.tzname[1]
+        return -time.altzone / 3600, time.tzname[1]
     else:
-        return -time.timezone/3600, time.tzname[0]
+        return -time.timezone / 3600, time.tzname[0]
 
 
 if __name__ == "__main__":

@@ -1,3 +1,4 @@
+# coding=utf-8
 from configparser import ConfigParser
 from pkg_resources import resource_filename
 from time import time, sleep, strptime
@@ -191,6 +192,7 @@ class MassdropBot:
                     responder.get_unread_messages()
                 except Exception as e:
                     self.logger.error(traceback.print_exc())
+                    self.logger.error("{} error: {} < {}".format(responder.BOT_NAME, e.__class__.__name__, e))
             self.database.clean_up_database(int(time()) - int(self.delete_after))
             self.lock.release()
             # after working through all update threads, sleep for five minutes. #saveresources

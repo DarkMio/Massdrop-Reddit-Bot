@@ -1,8 +1,9 @@
+# coding=utf-8
 """All kinds of color codes to colorize console output.
 """
 
 
-class bcolors:
+class BColors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKGREEN = '\033[92m'
@@ -18,11 +19,11 @@ def print_format_table():
     prints table of formatted text format options
     """
     for style in range(8):
-        for fg in range(30,38):
+        for fg in range(30, 38):
             s1 = ''
-            for bg in range(40,48):
-                format = ';'.join([str(style), str(fg), str(bg)])
-                s1 += '\x1b[%sm %s \x1b[0m' % (format, format)
+            for bg in range(40, 48):
+                fmt = ';'.join([str(style), str(fg), str(bg)])
+                s1 += '\x1b[%sm %s \x1b[0m' % (fmt, fmt)
             print(s1)
         print('\n')
 
@@ -32,16 +33,17 @@ if __name__ == '__main__':
 
     # Constants from the Windows API
     STD_OUTPUT_HANDLE = -11
-    FOREGROUND_RED    = 0x0004 # text color contains red.
+    FOREGROUND_RED = 0x0004  # text color contains red.
 
     def get_csbi_attributes(handle):
         # Based on IPython's winconsole.py, written by Alexander Belchenko
         import struct
         csbi = ctypes.create_string_buffer(22)
+        # noinspection PyUnusedLocal
         res = ctypes.windll.kernel32.GetConsoleScreenBufferInfo(handle, csbi)
 
         (bufx, bufy, curx, cury, wattr,
-        left, top, right, bottom, maxx, maxy) = struct.unpack("hhhhHhhhhhh", csbi.raw)
+            left, top, right, bottom, maxx, maxy) = struct.unpack("hhhhHhhhhhh", csbi.raw)
         return wattr
 
 
