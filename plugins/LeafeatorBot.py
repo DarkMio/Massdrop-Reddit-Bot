@@ -41,7 +41,6 @@ class LeafeatorBot(Base):
 
         result = self.REGEX.search(body)
         if result:
-            self.logger.info('Trying to comment on {}.'.format(thing_id))
             self.oauth.refresh()
             self.session._add_comment(thing_id, self.RESPONSE)
             return True
@@ -57,8 +56,5 @@ def init(database):
 
 
 if __name__ == '__main__':
-    from praw import Reddit
-    r = Reddit(user_agent='Manual Testing')
-    cmt = r.get_info(thing_id='t1_cud1yg6')
     lb = LeafeatorBot(None)
-    lb.execute_comment(cmt)
+    print(lb.RESPONSE.replace('\\n', '\n'))
