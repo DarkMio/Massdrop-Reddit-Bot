@@ -64,10 +64,16 @@ class MassdropBot:
 
     def _filter_single_thing(self, thing, responder):
         db = self.database
-        return (hasattr(thing, 'name') and not db.retrieve_thing(thing.name, responder.BOT_NAME)) and \
-               ((hasattr(thing.author, 'name') and not db.check_user_ban(thing.author.name, responder.BOT_NAME)) and
-                (hasattr(thing.subreddit, 'display_name') and not db.check_subreddit_ban(thing.subreddit.display_name,
-                                                                                         responder.BOT_NAME)))
+        author = thing.author
+        b_name = responder.BOT_NAME
+        sub = thing.subreddit
+        if hasattr(thing, 'name') and not db.retrieve_thing(thing.name, b_name):
+            if hasattr(author, 'name') and not db.check_user_ban(author.name, b_name):
+                if hasattr(sub, 'display_name') and not db.check_subreddit_ban(sub.display_name, b_name):
+                    if hasattr(responder, 'session') and author.name == responder.session.user.name:
+                        # @TODO: Piece of config if the bot should ignore himself. Currently does so.
+                        return False
+                    return True
 
     def load_responders(self):
         """Main method to load sub-modules, which are designed as a framework for multiple bots.

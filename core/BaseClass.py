@@ -15,16 +15,22 @@ class Base(metaclass=ABCMeta):
     OAUTH_FILENAME = None  # password of reddit username
     REGEX = None        # most basic regex string - pre-filters incoming threads
     BOT_NAME = None     # Give the bot a nice name.
+    IS_LOGGED_IN = False  # Mandatory bool if this bot features a logged in session
     session = None      # a full session with login into reddit.
     oauth = None        # praw-OAuth2Util
     logger = None       # logger for specific module
     config = None       # Could be used for ConfigParser - there is a method for that.
     database = None     # Session to database.
 
-    def __init__(self, database):
+    def __init__(self, database, bot_name,  setup_from_config=True):
         self.factory_logger()
         self.database = database
+        self.BOT_NAME = bot_name
         self.RE_BANMSG = re.compile(r'ban /([r|u])/([\d\w_]*)', re.UNICODE)
+        if setup_from_config:
+            self.factory_config()
+            self.standard_setup(bot_name)
+        # @TODO: Configuration setup template via ConfigParser to ensure consistency.
 
     def integrity_check(self):
         """Checks if the most important variables are initialized properly.
@@ -32,8 +38,17 @@ class Base(metaclass=ABCMeta):
         :return: True if possible
         :rtype: bool
         """
-        assert hasattr(self, 'DESCRIPTION') and hasattr(self, 'BOT_NAME'), \
+        assert hasattr(self, 'DESCRIPTION') and hasattr(self, 'BOT_NAME') and hasattr(self, 'IS_LOGGED_IN'), \
             "Failed constant variable integrity check. Check your object and its initialization."
+        if self.IS_LOGGED_IN:
+            assert hasattr(self, 'USERNAME') and hasattr(self, 'session') and hasattr(self, 'oauth') and \
+                self.USERNAME == self.session.user.name, \
+                "Plugin is declared to be logged in, yet the session info is missing."
+        else:
+            assert hasattr(self, 'USERNAME') and self.USERNAME is False and \
+                hasattr(self, 'session') and self.session is False and \
+                hasattr(self, 'oauth') and self.session is False, \
+                "Plugin is declared to be not logged in, yet has a full set of credentials."
         return True
 
     def factory_logger(self):
@@ -54,6 +69,15 @@ class Base(metaclass=ABCMeta):
         """Sets up a standard config-parser to bot_config.ini. Does not have to be used, but it is handy."""
         self.config = ConfigParser()
         self.config.read(resource_filename('config', 'bot_config.ini'))
+
+    def standard_setup(self, bot_name):
+        get = lambda x: self.config.get(bot_name, x)
+        self.DESCRIPTION = get('description')
+        self.IS_LOGGED_IN = get('is_logges_in')
+        if self.IS_LOGGED_IN:
+            self.USERNAME = get('username')
+            self.OAUTH_FILENAME = get('oauth_file')
+            self.factory_reddit(config_path=resource_filename("config", self.OAUTH_FILENAME))
 
     def get_unread_messages(self):
         """Runs down all unread messages of a Reddit session."""
