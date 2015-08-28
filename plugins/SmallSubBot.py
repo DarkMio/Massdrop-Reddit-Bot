@@ -9,12 +9,9 @@ import re
 class SmallSubBot(Base):
 
     def __init__(self, database):
-        super().__init__(database)
+        super().__init__(database, SmallSubBot)
         super().factory_config()
         self.BOT_NAME = 'SmallSubBot'
-        self.DESCRIPTION = self.config.get(self.BOT_NAME, 'description')
-        self.USERNAME = self.config.get(self.BOT_NAME, 'username')
-        self.OAUTH_FILENAME = self.config.get(self.BOT_NAME, 'oauth')
         self.REGEX = re.compile(r"\s/?[rR]/([A-Za-z0-9_]*)[^\s\].,)]*")
         self.DESCRIPTION_REGEX = re.compile(r"(\[).*?(\]\(.*?\))|(\\n)|(#)")  # Helps escaping shitty reddit markdown
         self.factory_reddit(config_path=resource_filename("config", self.OAUTH_FILENAME))

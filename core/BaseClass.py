@@ -30,7 +30,6 @@ class Base(metaclass=ABCMeta):
         if setup_from_config:
             self.factory_config()
             self.standard_setup(bot_name)
-        # @TODO: Configuration setup template via ConfigParser to ensure consistency.
 
     def integrity_check(self):
         """Checks if the most important variables are initialized properly.
@@ -41,14 +40,18 @@ class Base(metaclass=ABCMeta):
         assert hasattr(self, 'DESCRIPTION') and hasattr(self, 'BOT_NAME') and hasattr(self, 'IS_LOGGED_IN'), \
             "Failed constant variable integrity check. Check your object and its initialization."
         if self.IS_LOGGED_IN:
-            assert hasattr(self, 'USERNAME') and hasattr(self, 'session') and hasattr(self, 'oauth') and \
-                self.USERNAME == self.session.user.name, \
+            assert hasattr(self, 'USERNAME') and self.USERNAME is True \
+                and hasattr(self, 'session') and self.session is True \
+                and hasattr(self, 'oauth') and self.session is True, \
                 "Plugin is declared to be logged in, yet the session info is missing."
+            assert self.session.user.username == self.USERNAME, \
+                "This plugin is logged in with wrong credentials: \n" \
+                "is: {} - should be: {}".format(self.session.user.username, self.USERNAME)
         else:
             assert hasattr(self, 'USERNAME') and self.USERNAME is False and \
                 hasattr(self, 'session') and self.session is False and \
                 hasattr(self, 'oauth') and self.session is False, \
-                "Plugin is declared to be not logged in, yet has a full set of credentials."
+                "Plugin is declared to be not logged in, yet has a set of credentials."
         return True
 
     def factory_logger(self):
