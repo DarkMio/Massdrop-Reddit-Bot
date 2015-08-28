@@ -63,16 +63,20 @@ class MassdropBot:
         self.multi_thread.join_threads()
 
     def _filter_single_thing(self, thing, responder):
-        if not hasattr(thing, 'author') or not hasattr(thing, 'subreddit'):
+        db, b_name = self.database, responder.BOT_NAME
+        if db.retrieve_thing(thing.name, b_name):
             return False
-        db, author, b_name, sub = self.database, thing.author.name, responder.BOT_NAME, thing.subreddit.display_name
-        if not db.retrieve_thing(thing.name, b_name):
-            if not db.check_user_ban(author, b_name):
-                if not db.check_subreddit_ban(sub, b_name):
-                    if author == responder.session.user.name:
-                        # @TODO: Piece of config if the bot should ignore himself. Currently does so.
-                        return False
-                    return True
+
+        if hasattr(thing, 'author') and db.check_user_ban(thing.author.name, b_name):
+            return False
+
+        if hasattr(thing, 'subreddit') and db.check_subreddit_ban(thing.subreddit.display_name, b_name):
+            return False
+
+        if thing.author.name == responder.session.user.name:
+            # @TODO: Piece of config if the bot should ignore himself. Currently does so.
+            return False
+        return True
 
     def load_responders(self):
         """Main method to load sub-modules, which are designed as a framework for multiple bots.
@@ -220,7 +224,4 @@ class MassdropBot:
         self.logger.info("Configuration read and set up properly.")
 
 if __name__ == "__main__":
-    # cp = ConfigParser()
-    # cp.read(resource_filename('config', 'core_config.ini'))
-    # print(__print)
     mb = MassdropBot()
