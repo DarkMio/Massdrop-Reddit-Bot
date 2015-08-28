@@ -63,14 +63,13 @@ class MassdropBot:
         self.multi_thread.join_threads()
 
     def _filter_single_thing(self, thing, responder):
-        db = self.database
-        author = thing.author
-        b_name = responder.BOT_NAME
-        sub = thing.subreddit
-        if hasattr(thing, 'name') and not db.retrieve_thing(thing.name, b_name):
-            if hasattr(author, 'name') and not db.check_user_ban(author.name, b_name):
-                if hasattr(sub, 'display_name') and not db.check_subreddit_ban(sub.display_name, b_name):
-                    if hasattr(responder, 'session') and author.name == responder.session.user.name:
+        if not hasattr(thing, 'author') or not hasattr(thing, 'subreddit'):
+            return False
+        db, author, b_name, sub = self.database, thing.author.name, responder.BOT_NAME, thing.subreddit.display_name
+        if not db.retrieve_thing(thing.name, b_name):
+            if not db.check_user_ban(author, b_name):
+                if not db.check_subreddit_ban(sub, b_name):
+                    if author == responder.session.user.name:
                         # @TODO: Piece of config if the bot should ignore himself. Currently does so.
                         return False
                     return True
@@ -126,6 +125,7 @@ class MassdropBot:
         self.logger.info("Opened submission stream successfully.")
         for subm in self.submissions:
             self.comment_submission_action(subm)
+            sleep(1)
 
     def comment_thread(self):
         """The comment thread runs down all comments from the specified sub (usually /r/all)
@@ -133,6 +133,7 @@ class MassdropBot:
         self.logger.info("Opened comment stream successfully.")
         for comment in self.comments:
             self.comment_submission_action(comment)
+            sleep(1)
 
     def comment_submission_action(self, thing):
         """Refactored to one big execution chain - smart enough to split comments and submissions apart."""
@@ -215,9 +216,11 @@ class MassdropBot:
     def read_config(self):
         """Reads the config."""
         self.config = ConfigParser()
-        self.config.read(resource_filename('config', 'config.ini'))
+        self.config.read(resource_filename('config', 'core_config.ini'))
         self.logger.info("Configuration read and set up properly.")
 
-
 if __name__ == "__main__":
+    # cp = ConfigParser()
+    # cp.read(resource_filename('config', 'core_config.ini'))
+    # print(__print)
     mb = MassdropBot()
