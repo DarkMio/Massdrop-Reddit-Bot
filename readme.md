@@ -48,7 +48,7 @@ Feel free to mail me, even here on GitHub.
 
 ## FAQ
 
-### My bot is slow, doesn't react, it takes ages to load, responses are only there after several hours.
+#### My bot is slow, doesn't react, it takes ages to load, responses are only there after several hours.
 The most likely answer: One of your plugin loads on every trigger more data than what is in a [PRAW Lazy Object](http://praw.readthedocs.org/en/v3.1.0/pages/lazy-loading.html).
 I highly suggest you to read your ```praw-multiprocess``` console - if it isn't loading most of the time between ```/r/[subreddit]/new.json?count=0&limit&after=t3_something``` and ```/r/[subreddit]/comments/.json?count=0&limit=1024&after=t1_something```, then you most likely got trapped in lazy loading.
 
