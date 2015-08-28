@@ -38,7 +38,7 @@ class LeafeatorBot(Base):
                 thread_id = thing.name
             else:
                 thread_id = thing.submission.name
-            if not self.database.retrieve_thing(thread_id, self.BOT_NAME):
+            if self.database.retrieve_thing(thread_id, self.BOT_NAME):
                 self.logger.info('Skipped - already commented in thread.')
                 return False
 
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     db = DatabaseProvider()
     r = Reddit(user_agent='Manual Testing')
     subm = r.get_info(thing_id='t3_3ik036')
-    cmt = r.get_info(thing_id='t1_cuibk5j')
+    cmt = r.get_info(thing_id='t1_cuilwo5')
     lb = LeafeatorBot(db)
     lb.execute_comment(cmt)
     # lb.execute_submission(subm)
