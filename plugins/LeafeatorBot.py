@@ -40,7 +40,9 @@ class LeafeatorBot(Base):
         if not subreddit.lower() in self.APPROVE or 'leafeator' in username.lower():
             # filtering out all other stuff
             return False
+
         if self.database.retrieve_thing(thread_id, self.BOT_NAME):
+            self.logger.info('I am returning early and nobody knows why.')
             return False
 
         result = self.REGEX.search(body)
