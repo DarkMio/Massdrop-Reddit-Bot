@@ -16,6 +16,7 @@ class Base(metaclass=ABCMeta):
     REGEX = None        # most basic regex string - pre-filters incoming threads
     BOT_NAME = None     # Give the bot a nice name.
     IS_LOGGED_IN = False  # Mandatory bool if this bot features a logged in session
+    SELF_IGNORE = True  # Bool if the bot should not react on his own submissions / comments.
     session = None      # a full session with login into reddit.
     oauth = None        # praw-OAuth2Util
     logger = None       # logger for specific module
@@ -78,6 +79,7 @@ class Base(metaclass=ABCMeta):
         self.DESCRIPTION = get('description')
         self.IS_LOGGED_IN = self.config.getboolean(bot_name, 'is_logged_in')
         if self.IS_LOGGED_IN:
+            self.SELF_IGNORE = self.config.getboolean(bot_name, 'self_ignore')
             self.USERNAME = get('username')
             self.OAUTH_FILENAME = get('oauth_file')
             self.factory_reddit(config_path=resource_filename("config", self.OAUTH_FILENAME))
