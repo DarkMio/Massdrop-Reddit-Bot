@@ -12,15 +12,10 @@ from misc.mutliple_strings import multiple_of
 class Massdrop(Base):
 
     def __init__(self, database):
-        super().__init__(database)
+        super().__init__(database, 'MassdropBot')
         super().factory_config()
-        self.BOT_NAME = 'MassdropBot'
-        self.DESCRIPTION = self.config.get(self.BOT_NAME, 'description')
-        self.USERNAME = self.config.get(self.BOT_NAME, 'username')
-        self.OAUTH_FILENAME = self.config.get(self.BOT_NAME, 'oauth')
-        self.REGEX = re.compile(r"(https?:\/\/(?:www\.)?massdrop\.com\/buy\/([\w\d-]*)[^\s;,.\])]*)", re.UNICODE)
-        self.factory_reddit(config_path=resource_filename("config", self.OAUTH_FILENAME))
         self.responses = MassdropText("bot_config.ini")
+        self.REGEX = re.compile(r"(https?:\/\/(?:www\.)?massdrop\.com\/buy\/([\w\d-]*)[^\s;,.\])]*)", re.UNICODE)
         self.API_URL = 'https://www.massdrop.com/api/drops;dropUrl={}'
 
     def execute_comment(self, comment):

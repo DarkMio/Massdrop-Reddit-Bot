@@ -1,18 +1,11 @@
 # coding=utf-8
 from core.BaseClass import Base
-from pkg_resources import resource_filename
 import re
 
 
 class LeafeatorBot(Base):
     def __init__(self, database):
-        super().__init__(database)
-        self.BOT_NAME = 'LeafeatorBot'
-        self.DESCRIPTION = 'The greatest piece of shitposting for /r/dota2'
-        self.OAUTH_FILENAME = 'LeafeatorBot_OAuth.ini'
-        self.factory_reddit(config_path=resource_filename('config', self.OAUTH_FILENAME))
-        self.USERNAME = 'leafeator-bot'
-        self.factory_config()
+        super().__init__(database, 'LeafeatorBot')
         self.APPROVE = ['dota2circlejerk', 'dota2', 'dotamasterrace']
         self.RESPONSE = self.config.get('LeafeatorBot', 'response')
         self.REGEX = re.compile(
@@ -20,7 +13,7 @@ class LeafeatorBot(Base):
             re.IGNORECASE)
 
     def execute_comment(self, comment):
-        return self.general_action(comment.body, comment.fullname, comment.subreddit.display_name, comment.author.name)
+        return self.general_action(comment.body, comment, is_comment=True)
 
     def execute_titlepost(self, title_only):
         pass
@@ -29,21 +22,29 @@ class LeafeatorBot(Base):
         pass
 
     def execute_submission(self, submission):
-        return self.general_action(submission.selftext, submission.name, submission.subreddit.display_name,
-                                   submission.author.name)
+        return self.general_action(submission.selftext, submission)
 
     def update_procedure(self, thing_id, created, lifetime, last_updated, interval):
         pass
 
-    def general_action(self, body, thing_id, subreddit, username):
-        if not subreddit.lower() in self.APPROVE or 'leafeator' in username.lower():
+    def general_action(self, body, thing, is_comment=False):
+        if 'leafeator' in thing.author.name.lower() and thing.subreddit.display_name.lower not in self.APPROVE:
             # filtering out all other stuff
             return False
 
         result = self.REGEX.search(body)
         if result:
+            if not is_comment:
+                thread_id = thing.name
+            else:
+                thread_id = thing.submission.name
+            if not self.database.retrieve_thing(thread_id, self.BOT_NAME):
+                self.logger.info('Skipped - already commented in thread.')
+                return False
+
             self.oauth.refresh()
-            self.session._add_comment(thing_id, self.RESPONSE)
+            self.session._add_comment(thing.name, self.RESPONSE)
+            self.database.insert_into_storage(thread_id, self.BOT_NAME)
             return True
         return False
 
@@ -58,7 +59,13 @@ def init(database):
 
 if __name__ == '__main__':
     from praw import Reddit
+    from core.DatabaseProvider import DatabaseProvider
+    from core import LogProvider
+    logger = LogProvider.setup_logging(log_level="DEBUG")
+    db = DatabaseProvider()
     r = Reddit(user_agent='Manual Testing')
-    cmt = r.get_info(thing_id='t1_cud1d76')
-    lb = LeafeatorBot(None)
+    subm = r.get_info(thing_id='t3_3ik036')
+    cmt = r.get_info(thing_id='t1_cuibk5j')
+    lb = LeafeatorBot(db)
     lb.execute_comment(cmt)
+    # lb.execute_submission(subm)

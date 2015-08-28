@@ -8,12 +8,7 @@ import re
 
 class JiffierBot(Base):
     def __init__(self, database):
-        super().__init__(database)
-        self.BOT_NAME = 'JiffierBot'
-        self.DESCRIPTION = 'Fixes GFYCAT links and gives a witty response.'
-        self.OAUTH_FILENAME = 'JiffierBot_OAuth.ini'
-        self.factory_reddit(config_path=resource_filename('config', self.OAUTH_FILENAME))
-        self.USERNAME = 'JiffierBot'
+        super().__init__(database, 'JiffierBot')
         self.REGEX = re.compile(r'https?:\/\/(?:giant|fat|zippy).gfycat.com\/([\w]*)\.gif', re.UNICODE)
         self.API_URL = 'http://gfycat.com/cajax/get/{}'
         self.FIX_URL = 'http://gfycat.com/{}'

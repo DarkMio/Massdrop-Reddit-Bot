@@ -22,7 +22,7 @@ class Base(metaclass=ABCMeta):
     config = None       # Could be used for ConfigParser - there is a method for that.
     database = None     # Session to database.
 
-    def __init__(self, database, bot_name,  setup_from_config=True):
+    def __init__(self, database, bot_name, setup_from_config=True):
         self.factory_logger()
         self.database = database
         self.BOT_NAME = bot_name
@@ -40,13 +40,13 @@ class Base(metaclass=ABCMeta):
         assert hasattr(self, 'DESCRIPTION') and hasattr(self, 'BOT_NAME') and hasattr(self, 'IS_LOGGED_IN'), \
             "Failed constant variable integrity check. Check your object and its initialization."
         if self.IS_LOGGED_IN:
-            assert hasattr(self, 'USERNAME') and self.USERNAME is True \
-                and hasattr(self, 'session') and self.session is True \
-                and hasattr(self, 'oauth') and self.session is True, \
+            assert hasattr(self, 'USERNAME') and self.USERNAME \
+                and hasattr(self, 'session') and self.session \
+                and hasattr(self, 'oauth') and self.session, \
                 "Plugin is declared to be logged in, yet the session info is missing."
-            assert self.session.user.username == self.USERNAME, \
+            assert self.session.user.name.lower() == self.USERNAME.lower(), \
                 "This plugin is logged in with wrong credentials: \n" \
-                "is: {} - should be: {}".format(self.session.user.username, self.USERNAME)
+                "is: {} - should be: {}".format(self.session.user.name, self.USERNAME)
         else:
             assert hasattr(self, 'USERNAME') and self.USERNAME is False and \
                 hasattr(self, 'session') and self.session is False and \
@@ -76,7 +76,7 @@ class Base(metaclass=ABCMeta):
     def standard_setup(self, bot_name):
         get = lambda x: self.config.get(bot_name, x)
         self.DESCRIPTION = get('description')
-        self.IS_LOGGED_IN = get('is_logges_in')
+        self.IS_LOGGED_IN = self.config.getboolean(bot_name, 'is_logged_in')
         if self.IS_LOGGED_IN:
             self.USERNAME = get('username')
             self.OAUTH_FILENAME = get('oauth_file')
