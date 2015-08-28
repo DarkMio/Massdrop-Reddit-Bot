@@ -67,7 +67,8 @@ class MassdropBot:
         if db.retrieve_thing(thing.name, b_name):
             return False
 
-        if hasattr(thing, 'author') and db.check_user_ban(thing.author.name, b_name):
+        if hasattr(thing, 'author') and type(thing.author) is praw.objects.Redditor \
+                and db.check_user_ban(thing.author.name, b_name):
             return False
 
         if hasattr(thing, 'subreddit') and db.check_subreddit_ban(thing.subreddit.display_name, b_name):
