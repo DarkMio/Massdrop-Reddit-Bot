@@ -154,7 +154,7 @@ class ConfigDialog(Frame):
     def save_action_click(self):
         if self.save_check_if_complete():
             yesno = messagebox.askyesno('Save', 'Is your input correct?')
-            if yesno == 'yes':
+            if yesno:
                 section = self.section_field.get()
                 if section not in self.config_parser.sections():
                     self.config_parser.add_section(section)
@@ -165,6 +165,7 @@ class ConfigDialog(Frame):
                 if logged_in == 'True':
                     self.config_parser.set(section, 'username', self.username_field.get())
                     self.config_parser.set(section, 'oauth_file', self.username_field.get())
+                self.config_parser.write(open('../config/bot_config.ini', 'wb'))
                 self.quit()
 
     def save_check_if_complete(self):
