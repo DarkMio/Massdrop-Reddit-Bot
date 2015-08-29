@@ -66,16 +66,13 @@ class MassdropBot:
         db, b_name = self.database, responder.BOT_NAME
         if db.retrieve_thing(thing.name, b_name):
             return False
-
-        if hasattr(thing, 'author') and type(thing.author) is praw.objects.Redditor \
-                and db.check_user_ban(thing.author.name, b_name):
-            return False
-
+        if hasattr(thing, 'author') and type(thing.author) is praw.objects.Redditor:
+            if db.check_user_ban(thing.author.name, b_name):
+                return False
+            if thing.author.name == responder.session.user.name:
+                # @TODO: Piece of config if the bot should ignore himself. Currently does so.
+                return False
         if hasattr(thing, 'subreddit') and db.check_subreddit_ban(thing.subreddit.display_name, b_name):
-            return False
-
-        if thing.author.name == responder.session.user.name:
-            # @TODO: Piece of config if the bot should ignore himself. Currently does so.
             return False
         return True
 
