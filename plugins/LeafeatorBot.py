@@ -28,7 +28,7 @@ class LeafeatorBot(Base):
         pass
 
     def general_action(self, body, thing, is_comment=False):
-        if 'leafeator' in thing.author.name.lower() and thing.subreddit.display_name.lower not in self.APPROVE:
+        if 'leafeator' in thing.author.name.lower() and thing.subreddit.display_name.lower in self.APPROVE:
             # filtering out all other stuff
             return False
 
