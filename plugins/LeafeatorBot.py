@@ -28,8 +28,10 @@ class LeafeatorBot(Base):
         pass
 
     def general_action(self, body, thing, is_comment=False):
-        if 'leafeator' in thing.author.name.lower() and thing.subreddit.display_name.lower in self.APPROVE:
-            # filtering out all other stuff
+        if not type(thing.author) is None and 'leafeator' in thing.author.name.lower():
+            return False
+
+        if thing.subreddit.display_name.lower not in self.APPROVE:
             return False
 
         result = self.REGEX.search(body)

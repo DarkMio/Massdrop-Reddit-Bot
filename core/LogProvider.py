@@ -70,7 +70,7 @@ def setup_logging(log_level="INFO", console_log_level=None):
     database_logger.addHandler(console_handler)
     database_logger.addHandler(standard_handler)
 
-    bot_logger.info("MassdropBot Logger initialized.")
+    bot_logger.info("RedditRover Logger initialized.")
     logging.getLogger("requests").setLevel(logging.WARNING)
 
     offset, tzname = local_time_offset()

@@ -18,7 +18,7 @@ from misc import warning_filter
 from core.BaseClass import Base
 
 
-class MassdropBot:
+class RedditRover:
     """Core Process. It holds everything together and coordinates the plugins."""
     logger = None  # Logging Session with full console setup.
     config = None  # Holds later a full set of configs from ConfigParser.
