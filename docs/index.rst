@@ -22,6 +22,9 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   pages/core
+   pages/plugins
+   pages/misc
 
 .. include:: ../README.rst
    :start-after: begin_installation
