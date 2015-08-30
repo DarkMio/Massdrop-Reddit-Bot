@@ -22,6 +22,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   pages/writing_a_plugin
    pages/core
    pages/plugins
    pages/misc
