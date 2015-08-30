@@ -40,7 +40,8 @@ methods to function properly. This would look like this:
             super().__init__(database, 'MyBotName')
 
         def execute_comment(self, comment):
-            pass
+            if 'reddit' in comment.body.lower():
+                self.logger.info('{} said reddit here: {}'.format(comment.author.name, comment.permalink))
 
         def execute_link(self, link_submission):
             pass
@@ -49,7 +50,8 @@ methods to function properly. This would look like this:
             pass
 
         def execute_submission(self, submission):
-            pass
+            if 'reddit' in submission.selftext.lower():
+                self.logger.info('{} said reddit here: {}'.format(submission.author.name, submission.permalink))
 
         def update_procedure(self, thing_id, created, lifetime, last_updated, interval):
             pass
@@ -73,11 +75,73 @@ All you need to do is following:
 4. Test Block (optional)
 ------------------------
 And at last there is the optional test block. ``BaseClass/Base`` features two functions to load a single submission or
-comment by id to test your bot against real world data and test cases.
+comment by id to test your bot against real world data and test cases. You can now execute the plugin itself.
 
 .. code-block:: python
 
     if __name__ == '__main__':
         my_plugin = MyPlugin(None)  # Remember: We don't always need the database.
-        my_plugin.test_single_submission('29f2ah')  # See: https://redd.it/29f2ah
-        my_plugin.test_single_comment('ctvrywd')  # See: 
+        my_plugin.test_single_submission('3iyxxt')  # See: https://redd.it/29f2ah
+        my_plugin.test_single_comment('cukvign')  # See:
+
+About PRAW objects
+------------------
+I cannot teach you how to program or how to use PRAW objects to its fullest, but I can give you a good hint. In general
+it's a good advice lookup all steps in the python console or in iPython. A close look at `PRAWs objects
+<http://praw.readthedocs.org/en/stable/pages/code_overview.html#module-praw.objects>`_ is helpful too.
+
+.. code-block:: pycon
+
+    >>> from praw import Reddit
+    >>> r = Reddit(user_agent='Some user agent for you.')
+    >>> comment = r.get_info(thing_id='t1_cukvign')
+    >>> submission = r.get_info(thing_id='t3_3iyxxt')
+    >>> dir(comment)
+    >>> dir(submission)
+    >>> comment.author
+    >>> submission.author
+
+
+The entire code:
+----------------
+In case you struggle with assembling the code, here is it as full set:
+
+.. code-block:: python
+
+    from core.BaseClass import Base
+
+
+    class MyPlugin(Base):
+
+        def __init__(self, database):
+            super().__init__(database, 'MyBotName')
+
+        def execute_comment(self, comment):
+            if 'reddit' in comment.body.lower():
+                self.logger.info('{} said reddit here: {}'.format(comment.author.name, comment.permalink))
+
+        def execute_link(self, link_submission):
+            pass
+
+        def execute_titlepost(self, title_only):
+            pass
+
+        def execute_submission(self, submission):
+            if 'reddit' in submission.selftext.lower():
+                self.logger.info('{} said reddit here: {}'.format(submission.author.name, submission.permalink))
+
+        def update_procedure(self, thing_id, created, lifetime, last_updated, interval):
+            pass
+
+        def on_new_message(self, message):
+            pass
+
+
+    def init(database):
+        return MyPlugin(database)
+
+
+    if __name__ == '__main__':
+        my_plugin = MyPlugin(None)  # Remember: We don't always need the database.
+        my_plugin.test_single_submission('3iyxxt')  # See: https://redd.it/29f2ah
+        my_plugin.test_single_comment('cukvign')  # See:
