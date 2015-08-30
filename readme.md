@@ -1,27 +1,29 @@
-# Massdrop Reddit Bot
-In case you're interested in writing reddit bots and like to see how different bots operate, you can view and preview this bot here. Please respect my work and don't run it extensively on your own.
+# Reddit Rover
 
-```Massdrop.py``` is a sample feature which you should not use. I will break it soon on purpose, so it won't run at all for you. However, it shows the capabilities.
+Reddit Rover is a plugin-based framework to host multiple Reddit bots at once.
 
+- ```Massdrop.py``` skips the login wall of Massdrop.
+- ```JiffierBot.py``` fixes gfycat links to save bandwidth.
+- ```SmallSubBot.py``` links small subreddits named in the title - aiding mobile users.
+- ```LeafeatorBot.py``` is a simple shitposting bot.
 
-## Progress
-
-![Feature Complete](http://progressed.io/bar/100?title=Feature%20Complete)
-![Database Provider](http://progressed.io/bar/100?title=Database%20Provider)
-![Framework](http://progressed.io/bar/100?title=Framework)
-![Threading](http://progressed.io/bar/100?title=Threading)
-![Modules](http://progressed.io/bar/100?title=Modules)
+Please don't run those plugins not on your own. They're most likely removed with the next release and uploaded on a
+different repository to avoid multiple hoster running the same bots.
 
 ## Installation & Usage
-Running on Python 3:
+Running on Python 3+:
 
     pip install praw --upgrade
     pip install praw-oauth2util
     
-All other dependencies are standard builtins.
+All other dependencies are standard builtins. To be able to run this framework,
+you will need to run ```praw-multiprocess``` to avoid higher API usage than from Reddits guidelines.
 
 ## Debugging
-Bot features are written in Abstract Base Classes. Inherit them properly and then test them extensively with strings.
+Bot features are written in Abstract Base Classes. Inherit from it and execute one of the test functions:
+```test_single_submission(submission_id)```, ```test_single_comment(comment_id)``` or ```__test_single_thing(thing_id)```.
+Other than that, use atomic tests of your features however you please. Instantiating a plugin on its own works and 
+supposed to test your features. Read into the documentation to get a detailed guide how this bot works and what you bot has to do.
 
 ## Version & Changelog
 This bot is now again under development. Way less complex code, more segmentation and more single responsibility principle.
