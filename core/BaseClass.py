@@ -133,6 +133,29 @@ class Base(metaclass=ABCMeta):
                                   "\n\nHave a nice day!".format(sb, bn))
                     self.logger.info("Banned /r/{} from {} on message request".format(sb, bn))
 
+    def __test_single_thing(self, thing_id):
+        """If you're used to reddit thing ids, you can use this method directly.
+           However, if that is not the case, use test_single_submission and test_single_comment."""
+        r = praw.Reddit(user_agent='Bot Framework Test for a single submission.')
+        thing = r.get_info(submission_id=thing_id)
+        if type(thing) is praw.objects.Submission:
+            if thing.is_self and thing.selftext:
+                self.execute_submission(thing)
+            elif thing.is_self:
+                self.execute_titlepost(thing)
+            else:
+                self.execute_link(thing)
+        else:
+            self.execute_comment(thing)
+
+    def test_single_submission(self, submission_id):
+        """Use this method to test you bot manually on submissions."""
+        self.__test_single_thing("t3_{}".format(submission_id))
+
+    def test_single_comment(self, comment_id):
+        """Use this method to test your bot manually on a single comment."""
+        self.__test_single_thing("t1_{}".format(comment_id))
+
     @abstractmethod
     def execute_submission(self, submission):
         pass
