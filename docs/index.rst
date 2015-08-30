@@ -24,6 +24,12 @@ Contents:
 
 
 .. include:: ../README.rst
+   :start-after: begin_installation
+   :end-before: end_installation
+
+.. include:: ../README.rst
+   :start-after: begin_faq
+   :end-before: end_faq
 
 Indices and tables
 ==================
