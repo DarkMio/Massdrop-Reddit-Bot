@@ -1,5 +1,5 @@
 # coding=utf-8
-from core.MassdropBot import MassdropBot
+from core.RedditRover import RedditRover
 
 if __name__ == "__main__":
-    mb = MassdropBot()
+    rr = RedditRover()
