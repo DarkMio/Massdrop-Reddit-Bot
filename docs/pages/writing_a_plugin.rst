@@ -13,12 +13,28 @@ The basic structure
 
 RedditRovers plugins have three very important (and a fourth optional) sections:
 
-1. The import of the base class.
-2. An object that inherits from the base class and implements abstract methods.
-3. A function that instantiates the object and returns it.
-4. *(An external instantiating to test a plugin on your own.)
+1. Configuration File
+2. The import of the base class.
+3. An object that inherits from the base class and implements abstract methods.
+4. A function that instantiates the object and returns it.
+5. *(An external instantiating to test a plugin on your own.)
 
-1. Importing the base class
+1. Config File
+--------------
+Every Bot needs a basic set of configuration. By standard, this is stored in ``config/bot_config.ini``. To secure
+consistency you can use ``misc/ConfigWizard.py`` to setup a new configuration, otherwise we will append a section to
+the current bot configuration:
+
+.. code-block:: config
+
+    [MyBotName]
+    description=This scans for the occurences of 'reddit'
+    is_logged_in=False
+
+Note that this config is only needed if you're using the standard config setup of the base class. More about builtin
+features and manipulating manually the configuration can be found here: ../pages/baseclass.rst
+
+2. Importing the base class
 ---------------------------
 RedditRover checks always if your plugin is inherited from the baseclass. It gives you a set of features and makes
 maintaining code really simple. First you import the base class:
@@ -27,7 +43,7 @@ maintaining code really simple. First you import the base class:
 
     from core.BaseClass import Base
 
-2. Object from Base
+3. Object from Base
 -------------------
 Now comes the real part: Every plugin needs to inherit from the base class and has to implement a specific set of
 methods to function properly. This would look like this:
@@ -59,7 +75,7 @@ methods to function properly. This would look like this:
         def on_new_message(self, message):
             pass
 
-3. Function for instantiating the plugin
+4. Function for instantiating the plugin
 ----------------------------------------
 Next is an init-call to initialize the plugin, setup whatever you need to and return the object that inherits from
 ``BaseClass/Base``. This is a design decision to make it easy, run init-tasks and give a fixed return object back.
@@ -72,7 +88,7 @@ All you need to do is following:
     def init(database):
         return MyPlugin(database)
 
-4. Test Block (optional)
+5. Test Block (optional)
 ------------------------
 And at last there is the optional test block. ``BaseClass/Base`` features two functions to load a single submission or
 comment by id to test your bot against real world data and test cases. You can now execute the plugin itself.

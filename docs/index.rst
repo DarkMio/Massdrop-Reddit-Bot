@@ -23,6 +23,7 @@ Contents:
    :maxdepth: 2
 
    pages/writing_a_plugin
+   pages/baseclass
    pages/core
    pages/plugins
    pages/misc
