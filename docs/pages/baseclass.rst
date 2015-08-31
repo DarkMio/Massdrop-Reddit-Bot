@@ -13,7 +13,7 @@ those core features are not overwritten.
 
 .. py:class:: core.BaseClass.Base(database, bot_name, setup_from_config=True)
 
-.. py:classmethod:: execute_submission(self, submission)
+.. py:function:: execute_submission(self, submission)
 
     Class Method which receives a single ``praw.objects.Submission`` object resulting from a self.post on Reddit.
 
@@ -22,7 +22,7 @@ those core features are not overwritten.
     :rtype: Bool or NoneType
 
 
-.. py:classmethod:: execute_link(self, link_submission):
+.. py:function:: execute_link(self, link_submission):
 
     Class Method which receives a single ``praw.objects.Submission`` object resulting from a link post on Reddit.
 
@@ -30,7 +30,7 @@ those core features are not overwritten.
     :param submission: A single submission which includes an url. (link post)
     :rtype: Bool or NoneType
 
-.. py:classmethod:: execute_titlepost(self, title_only):
+.. py:function:: execute_titlepost(self, title_only):
 
     Class Method which receives a single ``praw.objects.Submission`` object, which has neither a text body nor an url.
     It is basically just the title of a submission.
@@ -39,7 +39,7 @@ those core features are not overwritten.
     :param submission: A single submission which has neither text nor url.
     :rtype: Bool or NoneType
 
-.. py:classmethod:: execute_comment(self, comment):
+.. py:function:: execute_comment(self, comment):
 
     Class Method which receives a single ``praw.objects.Comment`` object from a comment on a thread.
 
@@ -47,7 +47,7 @@ those core features are not overwritten.
     :param submission: A single comment.
     :rtype: Bool or NoneType
 
-.. py:classmethod:: update_procedure(self, thing_id, created, lifetime, last_updated, interval):
+.. py:function:: update_procedure(self, thing_id, created, lifetime, last_updated, interval):
 
     Gets called when you stored a comment or a submission in the update table.
 
@@ -63,7 +63,7 @@ those core features are not overwritten.
     :type interval: Integer
     :rtype: Bool or NoneType
 
-.. py:classmethod:: on_new_message(self, message):
+.. py:function:: on_new_message(self, message):
 
     Class Method that gets called whenever the bot received a new message.
 
