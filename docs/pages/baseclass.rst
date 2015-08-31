@@ -11,6 +11,8 @@ Abstract methods
 Within the Base are a couple of abstract methids, all of which have to be overwritten. The plugin won't be imported if
 those core features are not overwritten.
 
+.. py:class:: core.BaseClass.Base(database, bot_name, setup_from_config=True)
+
 .. py:classmethod:: execute_submission(self, submission)
 
     Class Method which receives a single ``praw.objects.Submission`` object resulting from a self.post on Reddit.
@@ -28,7 +30,6 @@ those core features are not overwritten.
     :param submission: A single submission which includes an url. (link post)
     :rtype: Bool or NoneType
 
-    @abstractmethod
 .. py:classmethod:: execute_titlepost(self, title_only):
 
     Class Method which receives a single ``praw.objects.Submission`` object, which has neither a text body nor an url.
@@ -40,7 +41,7 @@ those core features are not overwritten.
 
 .. py:classmethod:: execute_comment(self, comment):
 
-        Class Method which receives a single ``praw.objects.Comment`` object from a comment on a thread.
+    Class Method which receives a single ``praw.objects.Comment`` object from a comment on a thread.
 
     :param self: Object pointer
     :param submission: A single comment.
@@ -48,15 +49,27 @@ those core features are not overwritten.
 
 .. py:classmethod:: update_procedure(self, thing_id, created, lifetime, last_updated, interval):
 
+    Gets called when you stored a comment or a submission in the update table.
+
     :param self: Object pointer
     :param thing_id: A single comment.
-    :param created:
-    :param lifetime:
+    :param created: Moment of creation of this entry
+    :type created: time.struct_time
+    :param lifetime: Moment when entry outlived his update interval
+    :type lifetime: time.struct_time
+    :param last_updated: Moment when the entry has been updated last
+    :type last_updated: time.struct_time
+    :param interval: Update interval in seconds
+    :type interval: Integer
     :rtype: Bool or NoneType
 
-    @abstractmethod
-    def on_new_message(self, message):
-        pass
+.. py:classmethod:: on_new_message(self, message):
+
+    Class Method that gets called whenever the bot received a new message.
+
+    :params self: Object pointer
+    :param message: A PRAW Message
+    :type message: praw.objects.Message
 
 
 

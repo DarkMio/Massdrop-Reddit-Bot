@@ -118,8 +118,8 @@ it's a good advice lookup all steps in the python console or in iPython. A close
     >>> submission.author
 
 
-The entire code:
-----------------
+The entire code
+---------------
 In case you struggle with assembling the code, here is it as full set:
 
 .. code-block:: python
@@ -134,6 +134,7 @@ In case you struggle with assembling the code, here is it as full set:
 
         def execute_comment(self, comment):
             if 'reddit' in comment.body.lower():
+                author = ('[unknown]', submission.author.name)[submission.author is True]
                 self.logger.info('{} said reddit here: {}'.format(comment.author.name, comment.permalink))
 
         def execute_link(self, link_submission):
@@ -144,7 +145,8 @@ In case you struggle with assembling the code, here is it as full set:
 
         def execute_submission(self, submission):
             if 'reddit' in submission.selftext.lower():
-                self.logger.info('{} said reddit here: {}'.format(submission.author.name, submission.permalink))
+                author = ('[unknown]', submission.author.name)[submission.author is True]
+                self.logger.info('{} said reddit here: {}'.format(author, submission.permalink))
 
         def update_procedure(self, thing_id, created, lifetime, last_updated, interval):
             pass
